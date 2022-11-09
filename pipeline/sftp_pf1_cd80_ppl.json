@@ -1,0 +1,9 @@
+{
+	"name": "sftp_pf1_cd80_ppl",
+	"properties": {
+		"folder": {
+			"name": "sftp/pf1/cd80"
+		},
+		"annotations": []
+	}
+}
