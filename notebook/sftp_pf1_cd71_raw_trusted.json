@@ -2,7 +2,7 @@
 	"name": "sftp_pf1_cd71_raw_trusted",
 	"properties": {
 		"folder": {
-			"name": "sources/sftp/pf1/cd82"
+			"name": "sources/sftp/pf1/cd82/cd71"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "385e92dd-6715-4c2b-be49-5d1cfde63975"
+				"spark.autotune.trackingId": "88d82f95-a669-452f-816a-044d709463ea"
 			}
 		},
 		"metadata": {
