@@ -45,12 +45,12 @@
 						}
 					},
 					"sink": {
-						"type": "AvroSink",
+						"type": "ParquetSink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "AvroWriteSettings"
+							"type": "ParquetWriteSettings"
 						}
 					},
 					"enableStaging": false,
@@ -445,13 +445,13 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "sftp_pf1_cd82_dts",
+						"referenceName": "sftp_pf1_cd82",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "datalake_avro",
+						"referenceName": "datalake_parquet",
 						"type": "DatasetReference",
 						"parameters": {
 							"sourceType": "sftp",
@@ -492,7 +492,13 @@
 						"type": "BigDataPoolReference"
 					},
 					"executorSize": null,
-					"driverSize": null
+					"conf": {
+						"spark.dynamicAllocation.enabled": null,
+						"spark.dynamicAllocation.minExecutors": null,
+						"spark.dynamicAllocation.maxExecutors": null
+					},
+					"driverSize": null,
+					"numExecutors": null
 				}
 			}
 		],

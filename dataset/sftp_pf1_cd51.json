@@ -1,5 +1,5 @@
 {
-	"name": "sftp_pf1_cd82_dts",
+	"name": "sftp_pf1_cd51",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "sftp_pf1_gruponc",
@@ -13,16 +13,14 @@
 		"typeProperties": {
 			"location": {
 				"type": "FtpServerLocation",
-				"fileName": "CD82.TXT",
-				"folderPath": "loader/dwprd/INPUT/SAPR3/"
+				"fileName": "CD51.TXT",
+				"folderPath": "loader/dwprd/INPUT/SAPR3"
 			},
 			"columnDelimiter": ";",
-			"encodingName": "ISO-8859-2",
 			"escapeChar": "\\",
 			"firstRowAsHeader": true,
 			"quoteChar": "\""
 		},
 		"schema": []
-	},
-	"type": "Microsoft.Synapse/workspaces/datasets"
+	}
 }
