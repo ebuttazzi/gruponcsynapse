@@ -5,6 +5,9 @@
 			"referenceName": "sftp_pf1_gruponc",
 			"type": "LinkedServiceReference"
 		},
+		"folder": {
+			"name": "Source"
+		},
 		"annotations": [],
 		"type": "DelimitedText",
 		"typeProperties": {
