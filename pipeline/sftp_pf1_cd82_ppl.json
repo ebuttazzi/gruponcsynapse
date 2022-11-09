@@ -445,7 +445,7 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "sftp_pf1_cd82_dts",
+						"referenceName": "sftp_pf1_cd82",
 						"type": "DatasetReference"
 					}
 				],
@@ -492,7 +492,13 @@
 						"type": "BigDataPoolReference"
 					},
 					"executorSize": null,
-					"driverSize": null
+					"conf": {
+						"spark.dynamicAllocation.enabled": null,
+						"spark.dynamicAllocation.minExecutors": null,
+						"spark.dynamicAllocation.maxExecutors": null
+					},
+					"driverSize": null,
+					"numExecutors": null
 				}
 			}
 		],
