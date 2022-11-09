@@ -1,0 +1,18 @@
+{
+	"name": "sapr3_raw_cd51",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation"
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}
