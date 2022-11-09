@@ -60,7 +60,7 @@
 						"parameters": {
 							"sourceType": "sftp",
 							"sourceName": "pf1",
-							"datasetName": "cd8",
+							"datasetName": "cd80",
 							"datalakeContainer": "raw"
 						}
 					}
