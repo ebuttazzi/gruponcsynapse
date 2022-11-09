@@ -1,5 +1,5 @@
 {
-	"name": "sftp_pf1_cd82_dts",
+	"name": "sftp_pf1_cd82",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "sftp_pf1_gruponc",
