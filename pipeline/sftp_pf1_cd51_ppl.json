@@ -78,6 +78,28 @@
 									"name": "NOM_EMPRESA",
 									"physicalType": "UTF8"
 								}
+							},
+							{
+								"source": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
 							}
 						],
 						"typeConversion": true,
