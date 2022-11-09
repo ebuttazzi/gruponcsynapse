@@ -17,6 +17,22 @@
 				"typeProperties": {
 					"source": {
 						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "metadata_str_pipelineRunId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "metadata_tms_pipelineRunTime",
+								"value": {
+									"value": "@utcnow()",
+									"type": "Expression"
+								}
+							}
+						],
 						"storeSettings": {
 							"type": "FtpReadSettings",
 							"recursive": true,
@@ -40,6 +56,52 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CHAVE_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_TIPO_MATERIAL_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_TIPO_MATERIAL",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
