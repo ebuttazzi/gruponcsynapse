@@ -99,13 +99,12 @@
 								}
 							},
 							"sink": {
-								"type": "AvroSink",
+								"type": "ParquetSink",
 								"storeSettings": {
 									"type": "AzureBlobFSWriteSettings"
 								},
 								"formatSettings": {
-									"type": "AvroWriteSettings",
-									"maxRowsPerFile": 10000000
+									"type": "ParquetWriteSettings"
 								}
 							},
 							"enableStaging": false,
@@ -174,7 +173,7 @@
 						],
 						"outputs": [
 							{
-								"referenceName": "datalake_avro",
+								"referenceName": "datalake_parquet",
 								"type": "DatasetReference",
 								"parameters": {
 									"sourceType": "ftp",
@@ -245,7 +244,7 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/datasets/ftp_imshealth_ndddFato')]",
-				"[concat(variables('workspaceId'), '/datasets/datalake_avro')]",
+				"[concat(variables('workspaceId'), '/datasets/datalake_parquet')]",
 				"[concat(variables('workspaceId'), '/notebooks/ftp_imshealth_ndddFato_raw_trusted')]"
 			]
 		},
