@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "sftp_pf1_sap_cd51",
+				"name": "sftp_pf1_sapr3_cd51",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -49,20 +49,20 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "pf1_sapr3",
+						"referenceName": "sftp_pf1_cd51",
 						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
 					{
-						"referenceName": "sapr3_raw_cd51",
+						"referenceName": "datalake_parquet",
 						"type": "DatasetReference"
 					}
 				]
 			}
 		],
 		"folder": {
-			"name": "sftp/pf1/CD51"
+			"name": "sftp/pf1/cd51"
 		},
 		"annotations": []
 	}
