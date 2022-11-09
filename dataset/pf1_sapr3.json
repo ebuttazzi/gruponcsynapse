@@ -1,0 +1,21 @@
+{
+	"name": "pf1_sapr3",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sftp_pf1_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"folderPath": "loader/dwprd/INPUT/SAPR3"
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": []
+	}
+}
