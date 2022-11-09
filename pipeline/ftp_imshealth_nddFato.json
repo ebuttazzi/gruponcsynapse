@@ -140,6 +140,42 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "ftp_imshealth_ndddFato_raw_trusted",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "ftp_to_staging",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "ftp_imshealth_ndddFato_raw_trusted",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"yearMonth": {
+							"value": {
+								"value": "@pipeline().parameters.yearMonth",
+								"type": "Expression"
+							},
+							"type": "int"
+						}
+					},
+					"snapshot": true
+				}
 			}
 		],
 		"parameters": {
