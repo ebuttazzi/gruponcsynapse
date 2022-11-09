@@ -45,12 +45,12 @@
 						}
 					},
 					"sink": {
-						"type": "AvroSink",
+						"type": "ParquetSink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "AvroWriteSettings"
+							"type": "ParquetWriteSettings"
 						}
 					},
 					"enableStaging": false,
@@ -117,7 +117,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "datalake_avro",
+						"referenceName": "datalake_parquet",
 						"type": "DatasetReference",
 						"parameters": {
 							"sourceType": "sftp",
