@@ -1,0 +1,212 @@
+{
+	"name": "sftp_pf1_cd71_raw_trusted",
+	"properties": {
+		"folder": {
+			"name": "sources/sftp/pf1/cd82"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkSmallPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": true,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "385e92dd-6715-4c2b-be49-5d1cfde63975"
+			}
+		},
+		"metadata": {
+			"saveOutput": false,
+			"enableDebugMode": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/sparkSmallPool",
+				"name": "sparkSmallPool",
+				"type": "Spark",
+				"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net"
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"automaticScaleJobs": false
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run libraries/library_startingVariables"
+				],
+				"execution_count": 22
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run libraries/library_versionControl"
+				],
+				"execution_count": 23
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sourceType = 'sftp'\r\n",
+					"sourceName = 'pf1'\r\n",
+					"datasetName = 'cd71'"
+				],
+				"execution_count": 24
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"outputs_hidden": false
+					}
+				},
+				"source": [
+					"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')"
+				],
+				"execution_count": 25
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"try:\r\n",
+					"    df_trusted = basic_functions.read(sourceType, sourceName, datasetName, 'trusted')\\\r\n",
+					"        .filter(F.col(\"metadata_bool_active\") == True)\\\r\n",
+					"        .cast(\"metadata_bool_active\", \"boolean\")\r\n",
+					"except:\r\n",
+					"    df_trusted = df_raw\\\r\n",
+					"        .filter(\"1 = 0\")\\\r\n",
+					"        .withColumn(\"metadata_dt_start\", F.lit(None).cast(T.DateType()))\\\r\n",
+					"        .withColumn(\"metadata_dt_end\", F.lit(None).cast(T.DateType()))\\\r\n",
+					"        .withColumn(\"metadata_bool_active\", F.lit(True).cast(T.BooleanType()))\r\n",
+					""
+				],
+				"execution_count": 26
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"key_columns = ['COD_TIPO_MATERIAL_ORIGEM']\r\n",
+					"metadata_columns = ['metadata_str_pipelineRunId', 'metadata_tms_pipelineRunTime']\r\n",
+					"all_columns = df_raw.columns \r\n",
+					"value_columns = [column for column in all_columns if column not in key_columns + metadata_columns]"
+				],
+				"execution_count": 27
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df_final = version_control.versionate(df_raw, df_trusted, key_columns, value_columns)"
+				],
+				"execution_count": 28
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": true
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"collapsed": false
+				},
+				"source": [
+					"basic_functions.write(df_final.dataframe.filter(F.col(\"metadata_bool_active\") == True ), sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"metadata_bool_active\"])\r\n",
+					"basic_functions.write(df_final.dataframe.filter(F.col(\"metadata_bool_active\") == False), sourceType, sourceName, datasetName, 'trusted', 'append', [\"metadata_bool_active\"])"
+				],
+				"execution_count": 29
+			}
+		]
+	}
+}
