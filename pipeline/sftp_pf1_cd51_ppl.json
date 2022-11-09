@@ -3,7 +3,7 @@
 	"properties": {
 		"activities": [
 			{
-				"name": "sftp_pf1_sapr3_cd51",
+				"name": "source to raw",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
@@ -19,7 +19,7 @@
 						"type": "DelimitedTextSource",
 						"storeSettings": {
 							"type": "FtpReadSettings",
-							"fileListPath": "CD51",
+							"recursive": true,
 							"enablePartitionDiscovery": false,
 							"useBinaryTransfer": true,
 							"disableChunking": false
@@ -40,6 +40,30 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CHAVE_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_EMPRESA_RESUMIDO",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_EMPRESA",
+									"physicalType": "UTF8"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
@@ -56,7 +80,13 @@
 				"outputs": [
 					{
 						"referenceName": "datalake_parquet",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"sourceType": "sftp",
+							"sourceName": "pf1",
+							"datasetName": "cd51",
+							"datalakeContainer": "raw"
+						}
 					}
 				]
 			}
