@@ -249,6 +249,316 @@
 			]
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd10_ppl')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "source to raw",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 5,
+							"retryIntervalInSeconds": 60,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"additionalColumns": [
+									{
+										"name": "metadata_str_pipelineRunId",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "metadata_tms_pipelineRunTime",
+										"value": {
+											"value": "@utcnow()",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "FtpReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false,
+									"useBinaryTransfer": true,
+									"disableChunking": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "ParquetSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "ParquetWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "CHAVE_1",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_PROJETO_PS",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_1",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_PROJETO_PS",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_2",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_RESPO_PROJETO_PS",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_3",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_SOLICITANTE_PS",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_4",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_TIPO_PROJETO_PS",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_5",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_SITUACAO_PS",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_6",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_EMPRESA_RESUMIDO",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_7",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DAT_INICIO_PLANEJADA",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_8",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DAT_FIM_PLANEJADA",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_9",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_SIT_PROJETO_PD",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_10",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_SIT_ESTUDO_CLINICO",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_11",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_ETAPA_ESTUDO",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_12",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "NOM_MEDICAMENTO_REFERENCIA",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "metadata_str_pipelineRunId",
+											"type": "String"
+										},
+										"sink": {
+											"name": "metadata_str_pipelineRunId",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									},
+									{
+										"source": {
+											"name": "metadata_tms_pipelineRunTime",
+											"type": "String"
+										},
+										"sink": {
+											"name": "metadata_tms_pipelineRunTime",
+											"type": "String",
+											"physicalType": "UTF8"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "sftp_pf1_cd10",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "datalake_parquet",
+								"type": "DatasetReference",
+								"parameters": {
+									"sourceType": "sftp",
+									"sourceName": "pf1",
+									"datasetName": "cd10",
+									"datalakeContainer": "raw"
+								}
+							}
+						]
+					},
+					{
+						"name": "raw to trusted",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "source to raw",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 5,
+							"retryIntervalInSeconds": 60,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "sftp_pf1_cd10_raw_trusted",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "sparkSmallPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": false,
+								"spark.dynamicAllocation.minExecutors": 1,
+								"spark.dynamicAllocation.maxExecutors": 1
+							},
+							"driverSize": "Small",
+							"numExecutors": 1
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "sftp/pf1/cd10"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/sftp_pf1_cd10')]",
+				"[concat(variables('workspaceId'), '/datasets/datalake_parquet')]",
+				"[concat(variables('workspaceId'), '/notebooks/sftp_pf1_cd10_raw_trusted')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/sparkSmallPool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd51_ppl')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -1326,6 +1636,42 @@
 			},
 			"dependsOn": [
 				"[concat(variables('workspaceId'), '/linkedServices/ftp_imshealth_gruponc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd10')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sftp_pf1_gruponc",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FtpServerLocation",
+						"fileName": "CD10.TXT",
+						"folderPath": "loader/dwprd/INPUT/SAPR3"
+					},
+					"columnDelimiter": ";",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": [
+					{
+						"name": "CHAVE_1;CAMPO_1;CAMPO_2;CAMPO_3;CAMPO_4;CAMPO_5;CAMPO_6;CAMPO_7",
+						"type": "String"
+					}
+				]
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/sftp_pf1_gruponc')]"
 			]
 		},
 		{
@@ -2447,6 +2793,228 @@
 			"dependsOn": []
 		},
 		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd10_raw_trusted')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "sources/sftp/pf1/cd10"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkSmallPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": true,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "cfa51e40-52ae-418b-bf0d-b34d865fb82c"
+					}
+				},
+				"metadata": {
+					"saveOutput": false,
+					"enableDebugMode": true,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/sparkSmallPool",
+						"name": "sparkSmallPool",
+						"type": "Spark",
+						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net"
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%run libraries/library_startingVariables"
+						],
+						"outputs": [],
+						"execution_count": 22
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%run libraries/library_versionControl"
+						],
+						"outputs": [],
+						"execution_count": 23
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"sourceType = 'sftp'\r\n",
+							"sourceName = 'pf1'\r\n",
+							"datasetName = 'cd10'"
+						],
+						"outputs": [],
+						"execution_count": 24
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": false
+							}
+						},
+						"source": [
+							"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')"
+						],
+						"outputs": [],
+						"execution_count": 25
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"try:\r\n",
+							"    df_trusted = basic_functions.read(sourceType, sourceName, datasetName, 'trusted')\\\r\n",
+							"        .filter(F.col(\"metadata_bool_active\") == True)\\\r\n",
+							"        .cast(\"metadata_bool_active\", \"boolean\")\r\n",
+							"except:\r\n",
+							"    df_trusted = df_raw\\\r\n",
+							"        .filter(\"1 = 0\")\\\r\n",
+							"        .withColumn(\"metadata_dt_start\", F.lit(None).cast(T.DateType()))\\\r\n",
+							"        .withColumn(\"metadata_dt_end\", F.lit(None).cast(T.DateType()))\\\r\n",
+							"        .withColumn(\"metadata_bool_active\", F.lit(True).cast(T.BooleanType()))\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 26
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"key_columns = ['COD_PROJETO_PS']\r\n",
+							"metadata_columns = ['metadata_str_pipelineRunId', 'metadata_tms_pipelineRunTime']\r\n",
+							"all_columns = df_raw.columns \r\n",
+							"value_columns = [column for column in all_columns if column not in key_columns + metadata_columns]"
+						],
+						"outputs": [],
+						"execution_count": 27
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_final = version_control.versionate(df_raw, df_trusted, key_columns, value_columns)"
+						],
+						"outputs": [],
+						"execution_count": 28
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": true
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"basic_functions.write(df_final.dataframe.filter(F.col(\"metadata_bool_active\") == True ), sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"metadata_bool_active\"])\r\n",
+							"basic_functions.write(df_final.dataframe.filter(F.col(\"metadata_bool_active\") == False), sourceType, sourceName, datasetName, 'trusted', 'append', [\"metadata_bool_active\"])"
+						],
+						"outputs": [],
+						"execution_count": 29
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd51_raw_trusted')]",
 			"type": "Microsoft.Synapse/workspaces/notebooks",
 			"apiVersion": "2019-06-01-preview",
@@ -2915,7 +3483,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "2",
 						"spark.dynamicAllocation.maxExecutors": "2",
-						"spark.autotune.trackingId": "a65b5ac1-673c-455b-a8d0-c78360a3ff0e"
+						"spark.autotune.trackingId": "2c70ac9f-cc11-43a7-90ad-c2f77153ab99"
 					}
 				},
 				"metadata": {
@@ -2935,14 +3503,13 @@
 						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
 						"auth": {
 							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net",
-							"authHeader": null
+							"authResource": "https://dev.azuresynapse.net"
 						},
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 4,
 						"memory": 28,
-						"extraHeader": null
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
