@@ -17,6 +17,29 @@
 				"typeProperties": {
 					"source": {
 						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "metadata_str_pipelineRunId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "metadata_tms_pipelineRunTime",
+								"value": {
+									"value": "@utcnow()",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "parameter_int_yearMonth",
+								"value": {
+									"value": "@pipeline().parameters.yearMonth",
+									"type": "Expression"
+								}
+							}
+						],
 						"storeSettings": {
 							"type": "FtpReadSettings",
 							"recursive": true,
@@ -53,20 +76,32 @@
 				"inputs": [
 					{
 						"referenceName": "ftp_imshealth_cepbrick",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"yearMonth": {
+								"value": "@pipeline().parameters.yearMonth",
+								"type": "Expression"
+							}
+						}
 					}
 				],
 				"outputs": [
 					{
 						"referenceName": "datalake_parquet",
-						"type": "DatasetReference"
+						"type": "DatasetReference",
+						"parameters": {
+							"sourceType": "ftp",
+							"sourceName": "imshealth",
+							"datasetName": "cepbrick",
+							"datalakeContainer": "raw"
+						}
 					}
 				]
 			}
 		],
-		"variables": {
+		"parameters": {
 			"yearMonth": {
-				"type": "String"
+				"type": "string"
 			}
 		},
 		"folder": {
