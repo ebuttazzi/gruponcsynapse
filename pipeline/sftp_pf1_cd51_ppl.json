@@ -1,13 +1,13 @@
 {
-	"name": "ftp_imshealth_nddFato",
+	"name": "sftp_pf1_cd51_ppl",
 	"properties": {
 		"activities": [
 			{
-				"name": "ftp_to_staging",
+				"name": "source to raw",
 				"type": "Copy",
 				"dependsOn": [],
 				"policy": {
-					"timeout": "0.04:00:00",
+					"timeout": "0.00:15:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -31,13 +31,6 @@
 									"value": "@utcnow()",
 									"type": "Expression"
 								}
-							},
-							{
-								"name": "parameter_int_yearMonth",
-								"value": {
-									"value": "@pipeline().parameters.yearMonth",
-									"type": "Expression"
-								}
 							}
 						],
 						"storeSettings": {
@@ -48,10 +41,7 @@
 							"disableChunking": false
 						},
 						"formatSettings": {
-							"type": "DelimitedTextReadSettings",
-							"compressionProperties": {
-								"type": "ZipDeflateReadSettings"
-							}
+							"type": "DelimitedTextReadSettings"
 						}
 					},
 					"sink": {
@@ -69,12 +59,24 @@
 						"mappings": [
 							{
 								"source": {
+									"name": "CHAVE_1",
 									"type": "String",
-									"ordinal": 1
+									"physicalType": "String"
 								},
 								"sink": {
-									"name": "body",
+									"name": "NOM_EMPRESA_RESUMIDO",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_1",
+									"type": "String",
 									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_EMPRESA",
+									"physicalType": "UTF8"
 								}
 							},
 							{
@@ -84,7 +86,8 @@
 								},
 								"sink": {
 									"name": "metadata_str_pipelineRunId",
-									"physicalType": "String"
+									"type": "String",
+									"physicalType": "UTF8"
 								}
 							},
 							{
@@ -94,17 +97,8 @@
 								},
 								"sink": {
 									"name": "metadata_tms_pipelineRunTime",
-									"physicalType": "String"
-								}
-							},
-							{
-								"source": {
-									"name": "parameter_int_yearMonth",
-									"type": "String"
-								},
-								"sink": {
-									"name": "parameter_int_yearMonth",
-									"physicalType": "String"
+									"type": "String",
+									"physicalType": "UTF8"
 								}
 							}
 						],
@@ -117,14 +111,8 @@
 				},
 				"inputs": [
 					{
-						"referenceName": "ftp_imshealth_ndddFato",
-						"type": "DatasetReference",
-						"parameters": {
-							"yearMonth": {
-								"value": "@pipeline().parameters.yearMonth",
-								"type": "Expression"
-							}
-						}
+						"referenceName": "sftp_pf1_cd51",
+						"type": "DatasetReference"
 					}
 				],
 				"outputs": [
@@ -132,27 +120,27 @@
 						"referenceName": "datalake_parquet",
 						"type": "DatasetReference",
 						"parameters": {
-							"sourceType": "ftp",
-							"sourceName": "imshealth",
-							"datasetName": "ndddFato",
+							"sourceType": "sftp",
+							"sourceName": "pf1",
+							"datasetName": "cd51",
 							"datalakeContainer": "raw"
 						}
 					}
 				]
 			},
 			{
-				"name": "ftp_imshealth_ndddFato_raw_trusted",
+				"name": "raw to trusted",
 				"type": "SynapseNotebook",
 				"dependsOn": [
 					{
-						"activity": "ftp_to_staging",
+						"activity": "source to raw",
 						"dependencyConditions": [
 							"Succeeded"
 						]
 					}
 				],
 				"policy": {
-					"timeout": "0.12:00:00",
+					"timeout": "0.00:15:00",
 					"retry": 0,
 					"retryIntervalInSeconds": 30,
 					"secureOutput": false,
@@ -161,38 +149,28 @@
 				"userProperties": [],
 				"typeProperties": {
 					"notebook": {
-						"referenceName": "ftp_imshealth_ndddFato_raw_trusted",
+						"referenceName": "sftp_pf1_cd51_raw_trusted",
 						"type": "NotebookReference"
 					},
-					"parameters": {
-						"yearMonth": {
-							"value": {
-								"value": "@pipeline().parameters.yearMonth",
-								"type": "Expression"
-							},
-							"type": "int"
-						}
-					},
 					"snapshot": true,
-					"conf": {
-						"spark.dynamicAllocation.enabled": null,
-						"spark.dynamicAllocation.minExecutors": null,
-						"spark.dynamicAllocation.maxExecutors": null
+					"sparkPool": {
+						"referenceName": "sparkSmallPool",
+						"type": "BigDataPoolReference"
 					},
-					"numExecutors": null
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": false,
+						"spark.dynamicAllocation.minExecutors": 1,
+						"spark.dynamicAllocation.maxExecutors": 1
+					},
+					"driverSize": "Small",
+					"numExecutors": 1
 				}
 			}
 		],
-		"parameters": {
-			"yearMonth": {
-				"type": "string"
-			}
-		},
 		"folder": {
-			"name": "ftp/imshealth/nddFato"
+			"name": "sftp/pf1/cd51"
 		},
-		"annotations": [],
-		"lastPublishTime": "2022-11-01T01:29:38Z"
-	},
-	"type": "Microsoft.Synapse/workspaces/pipelines"
+		"annotations": []
+	}
 }

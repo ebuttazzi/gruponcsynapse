@@ -1,0 +1,40 @@
+{
+	"name": "datalake_parquet",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sourceType": {
+				"type": "string"
+			},
+			"sourceName": {
+				"type": "string"
+			},
+			"datasetName": {
+				"type": "string"
+			},
+			"datalakeContainer": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Parquet",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@{dataset().sourceType}/@{dataset().sourceName}/@{dataset().datasetName}",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().datalakeContainer",
+					"type": "Expression"
+				}
+			},
+			"compressionCodec": "snappy"
+		},
+		"schema": []
+	}
+}

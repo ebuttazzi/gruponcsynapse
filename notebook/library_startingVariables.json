@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "8d52c217-3bf4-48f8-b35b-c2495c0905e2"
+				"spark.autotune.trackingId": "945b4353-3f9b-4c31-a6fe-1cbea4950236"
 			}
 		},
 		"metadata": {
@@ -41,14 +41,13 @@
 				"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
 				"auth": {
 					"type": "AAD",
-					"authResource": "https://dev.azuresynapse.net",
-					"authHeader": null
+					"authResource": "https://dev.azuresynapse.net"
 				},
 				"sparkVersion": "3.2",
 				"nodeCount": 10,
 				"cores": 4,
 				"memory": 28,
-				"extraHeader": null
+				"automaticScaleJobs": false
 			},
 			"sessionKeepAliveTimeout": 30
 		},
@@ -213,10 +212,8 @@
 					"    def read(sourceType, sourceName, datasetName, lakeZone):\r\n",
 					"        check.datalake_zone(lakeZone)\r\n",
 					"        path = basic_functions._getpath(sourceType, sourceName, datasetName, lakeZone)\r\n",
-					"        if lakeZone == 'raw':\r\n",
-					"            return spark.read.format(\"avro\").load(path)\r\n",
-					"        else:\r\n",
-					"            return spark.read.format(\"parquet\").load(path)\r\n",
+					"        \r\n",
+					"        return spark.read.format(\"parquet\").load(path)\r\n",
 					"    \r\n",
 					"    def write(dataframe, sourceType, sourceName, datasetName, lakeZone, mode=\"overwrite\", partitions=[], repartitions=1):\r\n",
 					"        check.datalake_zone(lakeZone)\r\n",
@@ -224,7 +221,7 @@
 					"        path = basic_functions._getpath(sourceType, sourceName, datasetName, lakeZone)\r\n",
 					"\r\n",
 					"        if lakeZone == 'raw':\r\n",
-					"            dataframe.repartition(repartitions).write.format('avro').mode(mode).save(path)\r\n",
+					"            dataframe.repartition(repartitions).write.format('parquet').mode(mode).save(path)\r\n",
 					"        elif partitions == []:\r\n",
 					"            dataframe.repartition(repartitions).write.format('parquet').mode(mode).save(path)\r\n",
 					"        else:\r\n",
