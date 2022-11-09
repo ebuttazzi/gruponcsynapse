@@ -1,5 +1,5 @@
 {
-	"name": "sftp_pf1_cd87",
+	"name": "sftp_pf1_cd10",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "sftp_pf1_gruponc",
@@ -10,7 +10,7 @@
 		"typeProperties": {
 			"location": {
 				"type": "FtpServerLocation",
-				"fileName": "CD87.TXT",
+				"fileName": "CD10.TXT",
 				"folderPath": "loader/dwprd/INPUT/SAPR3"
 			},
 			"columnDelimiter": ";",
