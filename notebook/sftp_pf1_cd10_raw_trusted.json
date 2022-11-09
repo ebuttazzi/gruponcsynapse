@@ -1,8 +1,8 @@
 {
-	"name": "sftp_pf1_cd87_raw_trusted",
+	"name": "sftp_pf1_cd10_raw_trusted",
 	"properties": {
 		"folder": {
-			"name": "sources/sftp/pf1/cd82"
+			"name": "sources/sftp/pf1/cd10"
 		},
 		"nbformat": 4,
 		"nbformat_minor": 2,
@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "6e53f50e-73d3-48c7-a872-28a200732565"
+				"spark.autotune.trackingId": "cfa51e40-52ae-418b-bf0d-b34d865fb82c"
 			}
 		},
 		"metadata": {
@@ -104,7 +104,7 @@
 				"source": [
 					"sourceType = 'sftp'\r\n",
 					"sourceName = 'pf1'\r\n",
-					"datasetName = 'cd82'"
+					"datasetName = 'cd10'"
 				],
 				"execution_count": 24
 			},
@@ -162,7 +162,7 @@
 					}
 				},
 				"source": [
-					"key_columns = ['COD_ITEM_ORIGEM']\r\n",
+					"key_columns = ['COD_PROJETO_PS']\r\n",
 					"metadata_columns = ['metadata_str_pipelineRunId', 'metadata_tms_pipelineRunTime']\r\n",
 					"all_columns = df_raw.columns \r\n",
 					"value_columns = [column for column in all_columns if column not in key_columns + metadata_columns]"
