@@ -21,7 +21,10 @@
 					"type": "Expression"
 				}
 			},
-			"columnDelimiter": ",",
+			"columnDelimiter": "\u0001",
+			"compressionCodec": "ZipDeflate",
+			"compressionLevel": "Fastest",
+			"encodingName": "UTF-8",
 			"escapeChar": "\\",
 			"quoteChar": "\""
 		},
