@@ -1,0 +1,28 @@
+{
+	"name": "sftp_pf1_cd54",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sftp_pf1_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": "CD54.TXT",
+				"folderPath": "loader/dwprd/INPUT/SAPR3"
+			},
+			"columnDelimiter": ";",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CHAVE_1;CAMPO_1",
+				"type": "String"
+			}
+		]
+	}
+}
