@@ -1,0 +1,2224 @@
+{
+	"$schema": "http://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"type": "string",
+			"metadata": "Nome do Workspace",
+			"defaultValue": "prod-gruponc-ingestion-platform-workspace"
+		},
+		"prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultSqlServer_connectionString": {
+			"type": "secureString",
+			"metadata": "Cadeia de caracteres segura para 'connectionString' de 'prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultSqlServer'"
+		},
+		"ftp_imshealth_gruponc_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "ftp.imshealth.com.br"
+		},
+		"ftp_imshealth_gruponc_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "ems_bi"
+		},
+		"prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"type": "string",
+			"defaultValue": "https://prodgruponcdatalake.dfs.core.windows.net"
+		},
+		"prod_keyvault_properties_typeProperties_baseUrl": {
+			"type": "string",
+			"defaultValue": "https://prod-gruponc-kv.vault.azure.net/"
+		},
+		"sftp_pf1_gruponc_properties_typeProperties_host": {
+			"type": "string",
+			"defaultValue": "sftp-pf1.gruponc.net.br"
+		},
+		"sftp_pf1_gruponc_properties_typeProperties_userName": {
+			"type": "string",
+			"defaultValue": "ftp.datablues"
+		}
+	},
+	"variables": {
+		"workspaceId": "[concat('Microsoft.Synapse/workspaces/', parameters('workspaceName'))]"
+	},
+	"resources": [
+		{
+			"name": "[concat(parameters('workspaceName'), '/ftp_imshealth_nddFato')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "ftp_to_staging",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.04:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"additionalColumns": [
+									{
+										"name": "metadata_str_pipelineRunId",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "metadata_tms_pipelineRunTime",
+										"value": {
+											"value": "@utcnow()",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "parameter_int_yearMonth",
+										"value": {
+											"value": "@pipeline().parameters.yearMonth",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "FtpReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false,
+									"useBinaryTransfer": true,
+									"disableChunking": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings",
+									"compressionProperties": {
+										"type": "ZipDeflateReadSettings"
+									}
+								}
+							},
+							"sink": {
+								"type": "AvroSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "AvroWriteSettings",
+									"maxRowsPerFile": 10000000
+								}
+							},
+							"enableStaging": false,
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"type": "String",
+											"ordinal": 1
+										},
+										"sink": {
+											"name": "body",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "metadata_str_pipelineRunId",
+											"type": "String"
+										},
+										"sink": {
+											"name": "metadata_str_pipelineRunId",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "metadata_tms_pipelineRunTime",
+											"type": "String"
+										},
+										"sink": {
+											"name": "metadata_tms_pipelineRunTime",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "parameter_int_yearMonth",
+											"type": "String"
+										},
+										"sink": {
+											"name": "parameter_int_yearMonth",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "ftp_imshealth_ndddFato",
+								"type": "DatasetReference",
+								"parameters": {
+									"yearMonth": {
+										"value": "@pipeline().parameters.yearMonth",
+										"type": "Expression"
+									}
+								}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "datalake_avro",
+								"type": "DatasetReference",
+								"parameters": {
+									"sourceType": "ftp",
+									"sourceName": "imshealth",
+									"datasetName": "ndddFato",
+									"datalakeContainer": "raw"
+								}
+							}
+						]
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"yearMonth": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ftp/imshealth/nddFato"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-11-01T01:29:38Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/ftp_imshealth_ndddFato')]",
+				"[concat(variables('workspaceId'), '/datasets/datalake_avro')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd82_ppl')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "source to raw",
+						"type": "Copy",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"source": {
+								"type": "DelimitedTextSource",
+								"additionalColumns": [
+									{
+										"name": "metadata_str_pipelineRunId",
+										"value": {
+											"value": "@pipeline().RunId",
+											"type": "Expression"
+										}
+									},
+									{
+										"name": "metadata_tms_pipelineRunTime",
+										"value": {
+											"value": "@utcnow()",
+											"type": "Expression"
+										}
+									}
+								],
+								"storeSettings": {
+									"type": "FtpReadSettings",
+									"recursive": true,
+									"enablePartitionDiscovery": false,
+									"useBinaryTransfer": true,
+									"disableChunking": false
+								},
+								"formatSettings": {
+									"type": "DelimitedTextReadSettings"
+								}
+							},
+							"sink": {
+								"type": "AvroSink",
+								"storeSettings": {
+									"type": "AzureBlobFSWriteSettings"
+								},
+								"formatSettings": {
+									"type": "AvroWriteSettings"
+								}
+							},
+							"enableStaging": false,
+							"enableSkipIncompatibleRow": true,
+							"logSettings": {
+								"enableCopyActivityLog": true,
+								"copyActivityLogSettings": {
+									"logLevel": "Info",
+									"enableReliableLogging": false
+								},
+								"logLocationSettings": {
+									"linkedServiceName": {
+										"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+										"type": "LinkedServiceReference"
+									},
+									"path": "logs/sftp/pf1/cd82/"
+								}
+							},
+							"translator": {
+								"type": "TabularTranslator",
+								"mappings": [
+									{
+										"source": {
+											"name": "CHAVE_1",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_ITEM_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_1",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DESC_ITEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_2",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_TIPO_MATERIAL_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_3",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_FAMILIA_PRODUTO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_4",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_APRESENTACAO_PRDUTO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_5",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_DESCRICAO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_6",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_GRUPO_MERCADORIA_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_7",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_CLS_TERAPEUTICA",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_8",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_GRP_CATEGORIA",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_9",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DESC_TARJA",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_10",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_SETOR_ATIVIDADE_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_11",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DESC_FRM_FARMA",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_12",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_DIVISAO_PRODUTO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_13",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_LINHA_PRODUTO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_14",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_EAN",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_15",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DESC_UNIDADE_MEDIDA",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_16",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_GRUPO_MARKETING_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_17",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_GRUPO_MERC_EXTERNO_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_18",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DESC_VIA_ADM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_19",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "DESC_USO_CONTINUO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_20",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_PRINCIPIO_PMB",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_21",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_FORMA_FARMACEUTICA_ORIG",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_22",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_CONCENT_PMB",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_23",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_ITEM_CURVA_ABC_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_24",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_ITEM_CURVA_MARGEM_ORIGEM",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_25",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "QT_ESTOQUE_MAX_DIAS",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_26",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "QT_ESTOQUE_MIN_DIAS",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_27",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "QT_VALIDADE_MESES",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_28",
+											"type": "String",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "COD_CENTRO_PADRAO",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_29",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "QT_POR_CAIXA",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "CAMPO_30",
+											"type": "Int64",
+											"physicalType": "String"
+										},
+										"sink": {
+											"name": "QT_POR_PALETE",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "metadata_str_pipelineRunId",
+											"type": "String"
+										},
+										"sink": {
+											"name": "metadata_str_pipelineRunId",
+											"type": "String",
+											"physicalType": "String"
+										}
+									},
+									{
+										"source": {
+											"name": "metadata_tms_pipelineRunTime",
+											"type": "String"
+										},
+										"sink": {
+											"name": "metadata_tms_pipelineRunTime",
+											"type": "String",
+											"physicalType": "String"
+										}
+									}
+								],
+								"typeConversion": true,
+								"typeConversionSettings": {
+									"allowDataTruncation": true,
+									"treatBooleanAsNumber": false
+								}
+							}
+						},
+						"inputs": [
+							{
+								"referenceName": "sftp_pf1_cd82_dts",
+								"type": "DatasetReference",
+								"parameters": {}
+							}
+						],
+						"outputs": [
+							{
+								"referenceName": "datalake_avro",
+								"type": "DatasetReference",
+								"parameters": {
+									"sourceType": "sftp",
+									"sourceName": "pf1",
+									"datasetName": "cd82",
+									"datalakeContainer": "raw"
+								}
+							}
+						]
+					},
+					{
+						"name": "sftp_pf1_cd82_raw_trusted",
+						"type": "SynapseNotebook",
+						"dependsOn": [
+							{
+								"activity": "source to raw",
+								"dependencyConditions": [
+									"Succeeded"
+								]
+							}
+						],
+						"policy": {
+							"timeout": "0.00:15:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "sftp_pf1_cd82_raw_trusted",
+								"type": "NotebookReference"
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "sparkSmallPool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": null,
+							"conf": {
+								"spark.dynamicAllocation.enabled": null,
+								"spark.dynamicAllocation.minExecutors": null,
+								"spark.dynamicAllocation.maxExecutors": null
+							},
+							"driverSize": null,
+							"numExecutors": null
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"folder": {
+					"name": "sftp/pf1/cd82"
+				},
+				"annotations": [],
+				"lastPublishTime": "2022-10-26T03:29:27Z"
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/datasets/sftp_pf1_cd82_dts')]",
+				"[concat(variables('workspaceId'), '/datasets/datalake_avro')]",
+				"[concat(variables('workspaceId'), '/notebooks/sftp_pf1_cd82_raw_trusted')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/sparkSmallPool')]",
+				"[concat(variables('workspaceId'), '/linkedServices/prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/datalake_avro')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"sourceType": {
+						"type": "string"
+					},
+					"sourceName": {
+						"type": "string"
+					},
+					"datasetName": {
+						"type": "string"
+					},
+					"datalakeContainer": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Avro",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@{dataset().sourceType}/@{dataset().sourceName}/@{dataset().datasetName}",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().datalakeContainer",
+							"type": "Expression"
+						}
+					}
+				},
+				"schema": {}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/datalake_binary')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"sourceType": {
+						"type": "string"
+					},
+					"sourceName": {
+						"type": "string"
+					},
+					"datasetName": {
+						"type": "string"
+					},
+					"datalakeContainer": {
+						"type": "string"
+					}
+				},
+				"annotations": [],
+				"type": "Binary",
+				"typeProperties": {
+					"location": {
+						"type": "AzureBlobFSLocation",
+						"folderPath": {
+							"value": "@{dataset().sourceType}/@{dataset().sourceName}/@{dataset().datasetName}",
+							"type": "Expression"
+						},
+						"fileSystem": {
+							"value": "@dataset().datalakeContainer",
+							"type": "Expression"
+						}
+					}
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ftp_imshealth_ndddFato')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "ftp_imshealth_gruponc",
+					"type": "LinkedServiceReference"
+				},
+				"parameters": {
+					"yearMonth": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FtpServerLocation",
+						"fileName": {
+							"value": "FFF_BRA_DDDMIX_176OXX_@{dataset().yearMonth}.zip",
+							"type": "Expression"
+						},
+						"folderPath": {
+							"value": "DDDMIX_TXT/@{dataset().yearMonth}",
+							"type": "Expression"
+						}
+					},
+					"columnDelimiter": "\u0001",
+					"compressionCodec": "ZipDeflate",
+					"compressionLevel": "Fastest",
+					"encodingName": "UTF-8",
+					"escapeChar": "\\",
+					"firstRowAsHeader": false,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/ftp_imshealth_gruponc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd82_dts')]",
+			"type": "Microsoft.Synapse/workspaces/datasets",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"linkedServiceName": {
+					"referenceName": "sftp_pf1_gruponc",
+					"type": "LinkedServiceReference"
+				},
+				"folder": {
+					"name": "Source"
+				},
+				"annotations": [],
+				"type": "DelimitedText",
+				"typeProperties": {
+					"location": {
+						"type": "FtpServerLocation",
+						"fileName": "CD82.TXT",
+						"folderPath": "loader/dwprd/INPUT/SAPR3/"
+					},
+					"columnDelimiter": ";",
+					"encodingName": "ISO-8859-2",
+					"escapeChar": "\\",
+					"firstRowAsHeader": true,
+					"quoteChar": "\""
+				},
+				"schema": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/linkedServices/sftp_pf1_gruponc')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ftp_imshealth_gruponc')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"description": "FTP IQVIA",
+				"annotations": [],
+				"type": "FtpServer",
+				"typeProperties": {
+					"host": "[parameters('ftp_imshealth_gruponc_properties_typeProperties_host')]",
+					"port": "21",
+					"enableSsl": false,
+					"enableServerCertificateValidation": false,
+					"authenticationType": "Basic",
+					"userName": "[parameters('ftp_imshealth_gruponc_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "prod_keyvault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "ftp-imshealth-password",
+						"secretVersion": "0c951a68856940dcb7fee3e37ebc1ddf"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('workspaceId'), '/linkedServices/prod_keyvault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultSqlServer')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"parameters": {
+					"DBName": {
+						"type": "String"
+					}
+				},
+				"annotations": [],
+				"type": "AzureSqlDW",
+				"typeProperties": {
+					"connectionString": "[parameters('prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultSqlServer_connectionString')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureBlobFS",
+				"typeProperties": {
+					"url": "[parameters('prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage_properties_typeProperties_url')]"
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/prod_keyvault')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "AzureKeyVault",
+				"typeProperties": {
+					"baseUrl": "[parameters('prod_keyvault_properties_typeProperties_baseUrl')]"
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_gruponc')]",
+			"type": "Microsoft.Synapse/workspaces/linkedServices",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"annotations": [],
+				"type": "FtpServer",
+				"typeProperties": {
+					"host": "[parameters('sftp_pf1_gruponc_properties_typeProperties_host')]",
+					"port": "2121",
+					"enableSsl": true,
+					"enableServerCertificateValidation": true,
+					"authenticationType": "Basic",
+					"userName": "[parameters('sftp_pf1_gruponc_properties_typeProperties_userName')]",
+					"password": {
+						"type": "AzureKeyVaultSecret",
+						"store": {
+							"referenceName": "prod_keyvault",
+							"type": "LinkedServiceReference"
+						},
+						"secretName": "sftp-pf1-password"
+					}
+				},
+				"connectVia": {
+					"referenceName": "AutoResolveIntegrationRuntime",
+					"type": "IntegrationRuntimeReference"
+				}
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/integrationRuntimes/AutoResolveIntegrationRuntime')]",
+				"[concat(variables('workspaceId'), '/linkedServices/prod_keyvault')]"
+			]
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/AutoResolveIntegrationRuntime')]",
+			"type": "Microsoft.Synapse/workspaces/integrationRuntimes",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "Managed",
+				"typeProperties": {
+					"computeProperties": {
+						"location": "AutoResolve",
+						"dataFlowProperties": {
+							"computeType": "General",
+							"coreCount": 8,
+							"timeToLive": 0
+						}
+					}
+				}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/WorkspaceSystemIdentity')]",
+			"type": "Microsoft.Synapse/workspaces/credentials",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"type": "ManagedIdentity",
+				"typeProperties": {}
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/ftp_imshealth_ndddFato_raw_trusted')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "sources/ftp/imshealth/ndddFato"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "MOLargePool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 10,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "10",
+						"spark.dynamicAllocation.maxExecutors": "10",
+						"spark.autotune.trackingId": "662ee24e-8557-4635-bb6f-0068156abe3a"
+					}
+				},
+				"metadata": {
+					"saveOutput": false,
+					"enableDebugMode": true,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/MOLargePool",
+						"name": "MOLargePool",
+						"type": "Spark",
+						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/MOLargePool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 16,
+						"memory": 112,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%run libraries/library_startingVariables"
+						],
+						"outputs": [],
+						"execution_count": 2
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"tags": [
+								"parameters"
+							]
+						},
+						"source": [
+							"yearMonth = 202209"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"yearMonth = str(yearMonth)\r\n",
+							"yearMonths = du.parser.parse(f\"{yearMonth[0:4]}-{yearMonth[4:6]}\")"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"sourceType = 'ftp'\r\n",
+							"sourceName = 'imshealth'\r\n",
+							"datasetName = 'ndddFato'"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": false
+							}
+						},
+						"source": [
+							"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"datelist = [(yearMonths - du.relativedelta.relativedelta(months=x)).strftime(\"%Y_%m\") for x in range(24)]"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = df_raw.select\\\r\n",
+							"    (\r\n",
+							"        df_raw[\"body\"].substr(1, 10).cast(\"long\").alias(\"fcc\"),\r\n",
+							"        df_raw[\"body\"].substr(11, 9).cast(\"long\").alias(\"brick\"),\r\n",
+							"        df_raw[\"body\"].substr(20, 3).cast(\"long\").alias(\"regiCod\"),\r\n",
+							"        df_raw[\"body\"].substr(23, 4).cast(\"long\").alias(\"distCod\"),\r\n",
+							"        df_raw[\"body\"].substr(27, 6).cast(\"long\").alias(\"terrCod\"),\r\n",
+							"        df_raw[\"body\"].substr(33, 1).alias(\"clieLet\"),\r\n",
+							"        df_raw[\"body\"].substr(34, 4).cast(\"long\").alias(\"chanCod\"),\r\n",
+							"        df_raw[\"body\"].substr(38, 15).cast(\"double\").alias(datelist[0]),\r\n",
+							"        df_raw[\"body\"].substr(53, 15).cast(\"double\").alias(datelist[1]),\r\n",
+							"        df_raw[\"body\"].substr(68, 15).cast(\"double\").alias(datelist[2]),\r\n",
+							"        df_raw[\"body\"].substr(83, 15).cast(\"double\").alias(datelist[3]),\r\n",
+							"        df_raw[\"body\"].substr(98, 15).cast(\"double\").alias(datelist[4]),\r\n",
+							"        df_raw[\"body\"].substr(113, 15).cast(\"double\").alias(datelist[5]),\r\n",
+							"        df_raw[\"body\"].substr(128, 15).cast(\"double\").alias(datelist[6]),\r\n",
+							"        df_raw[\"body\"].substr(143, 15).cast(\"double\").alias(datelist[7]),\r\n",
+							"        df_raw[\"body\"].substr(158, 15).cast(\"double\").alias(datelist[8]),\r\n",
+							"        df_raw[\"body\"].substr(173, 15).cast(\"double\").alias(datelist[9]),\r\n",
+							"        df_raw[\"body\"].substr(188, 15).cast(\"double\").alias(datelist[10]),\r\n",
+							"        df_raw[\"body\"].substr(203, 15).cast(\"double\").alias(datelist[11]),\r\n",
+							"        df_raw[\"body\"].substr(218, 15).cast(\"double\").alias(datelist[12]),\r\n",
+							"        df_raw[\"body\"].substr(233, 15).cast(\"double\").alias(datelist[13]),\r\n",
+							"        df_raw[\"body\"].substr(248, 15).cast(\"double\").alias(datelist[14]),\r\n",
+							"        df_raw[\"body\"].substr(263, 15).cast(\"double\").alias(datelist[15]),\r\n",
+							"        df_raw[\"body\"].substr(278, 15).cast(\"double\").alias(datelist[16]),\r\n",
+							"        df_raw[\"body\"].substr(293, 15).cast(\"double\").alias(datelist[17]),\r\n",
+							"        df_raw[\"body\"].substr(308, 15).cast(\"double\").alias(datelist[18]),\r\n",
+							"        df_raw[\"body\"].substr(323, 15).cast(\"double\").alias(datelist[19]),\r\n",
+							"        df_raw[\"body\"].substr(338, 15).cast(\"double\").alias(datelist[20]),\r\n",
+							"        df_raw[\"body\"].substr(353, 15).cast(\"double\").alias(datelist[21]),\r\n",
+							"        df_raw[\"body\"].substr(368, 15).cast(\"double\").alias(datelist[22]),\r\n",
+							"        df_raw[\"body\"].substr(383, 15).cast(\"double\").alias(datelist[23]),\r\n",
+							"        df_raw[\"body\"].substr(398, 25).cast(\"double\").alias(\"sumControlUnitsPeriod\"),\r\n",
+							"        \"metadata_str_pipelineRunId\",\r\n",
+							"        F.col(\"metadata_tms_pipelineRunTime\").cast(\"timestamp\"),\r\n",
+							"        F.col(\"parameter_int_yearMonth\").cast(\"integer\")\r\n",
+							"    )"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df = basic_functions.wide_to_long(df, datelist)\r\n",
+							"\r\n",
+							"df = df\\\r\n",
+							"    .withColumn(\"period\", F.to_date(F.col(\"column\"),\"yyyy_MM\"))\\\r\n",
+							"    .withColumn(\"unitsNumber\", F.col(\"value\"))\\\r\n",
+							"    .drop(\"column\", \"value\")\\\r\n",
+							"    .filter(F.col(\"unitsNumber\") > 0)"
+						],
+						"outputs": []
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"basic_functions.write(df, sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"parameter_int_yearMonth\", \"period\"])"
+						],
+						"outputs": []
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/library_startingVariables')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "libraries"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkSmallPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "8d52c217-3bf4-48f8-b35b-c2495c0905e2"
+					}
+				},
+				"metadata": {
+					"saveOutput": false,
+					"enableDebugMode": true,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/sparkSmallPool",
+						"name": "sparkSmallPool",
+						"type": "Spark",
+						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"# Eu preciso de functions pra 10 milhões de coisas diferentes\r\n",
+							"import pyspark.sql.functions as F\r\n",
+							"# Eu preciso dos tipos pra ajustar a vida\r\n",
+							"import pyspark.sql.types as T\r\n",
+							"# Inteligência de data\r\n",
+							"import datetime as dt\r\n",
+							"import dateutil as du\r\n",
+							"import pytz"
+						],
+						"outputs": [],
+						"execution_count": 32
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Seta versão do Spark e do Driver no ambiente\r\n",
+							"import os\r\n",
+							"import sys\r\n",
+							"\r\n",
+							"os.environ['PYSPARK_PYTHON'] = sys.executable\r\n",
+							"os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable"
+						],
+						"outputs": [],
+						"execution_count": 33
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Spark em parser LEGACY\r\n",
+							"spark.conf.set(\"spark.sql.legacy.timeParserPolicy\",\"LEGACY\")"
+						],
+						"outputs": [],
+						"execution_count": 34
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Set Fuso horário\r\n",
+							"brazil_tz = pytz.timezone('Brazil/East')"
+						],
+						"outputs": [],
+						"execution_count": 35
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Vou precisar da execução atual\r\n",
+							"now = dt.datetime.now(brazil_tz)\r\n",
+							"# Começo puxando a data atual\r\n",
+							"today = dt.date.today()"
+						],
+						"outputs": [],
+						"execution_count": 36
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"class check:\r\n",
+							"    def datalake_zone(zone):\r\n",
+							"        if zone.lower() not in [\"raw\", \"trusted\", \"consume\"]:\r\n",
+							"             raise ValueError(f\"{zone} is not a valid zone.\")\r\n",
+							"    def config_dataType(dataType):\r\n",
+							"        if dataType.lower() not in [\"list\", \"transactional\", \"factual\"]:\r\n",
+							"             raise ValueError(f\"{dataType} is not a valid zone.\")\r\n",
+							"    def write_mode(mode):\r\n",
+							"        if mode.lower() not in [\"append\", \"overwrite\"]:\r\n",
+							"             raise ValueError(f\"{mode} is not a write mode.\")"
+						],
+						"outputs": [],
+						"execution_count": 37
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"class basic_functions:\r\n",
+							"    \r\n",
+							"    ##                      ##\r\n",
+							"    ## Auxiliares & Ocultas ##\r\n",
+							"    ##                      ##\r\n",
+							"    \r\n",
+							"    def _getpath(sourceType, sourceName, datasetName, lakeZone):\r\n",
+							"        \"\"\"\r\n",
+							"        \"Description\": \"Get the path from a config variable\",\r\n",
+							"        \"Arguments\": Config, Zone\r\n",
+							"        \"Return Type\": <class 'str'>\r\n",
+							"        \"\"\"\r\n",
+							"        return (f'abfss://{lakeZone}@prodgruponcdatalake.dfs.core.windows.net/{sourceType}/{sourceName}/{datasetName}')\r\n",
+							"    \r\n",
+							"    \r\n",
+							"    \r\n",
+							"    ##                    ##\r\n",
+							"    ## Leitura & Gravação ##\r\n",
+							"    ##                    ##\r\n",
+							"    \r\n",
+							"    def read(sourceType, sourceName, datasetName, lakeZone):\r\n",
+							"        check.datalake_zone(lakeZone)\r\n",
+							"        path = basic_functions._getpath(sourceType, sourceName, datasetName, lakeZone)\r\n",
+							"        if lakeZone == 'raw':\r\n",
+							"            return spark.read.format(\"avro\").load(path)\r\n",
+							"        else:\r\n",
+							"            return spark.read.format(\"parquet\").load(path)\r\n",
+							"    \r\n",
+							"    def write(dataframe, sourceType, sourceName, datasetName, lakeZone, mode=\"overwrite\", partitions=[], repartitions=1):\r\n",
+							"        check.datalake_zone(lakeZone)\r\n",
+							"        check.write_mode(mode)\r\n",
+							"        path = basic_functions._getpath(sourceType, sourceName, datasetName, lakeZone)\r\n",
+							"\r\n",
+							"        if lakeZone == 'raw':\r\n",
+							"            dataframe.repartition(repartitions).write.format('avro').mode(mode).save(path)\r\n",
+							"        elif partitions == []:\r\n",
+							"            dataframe.repartition(repartitions).write.format('parquet').mode(mode).save(path)\r\n",
+							"        else:\r\n",
+							"            dataframe.repartition(repartitions).write.format('parquet').partitionBy(partitions).mode(mode).save(path)\r\n",
+							"        \r\n",
+							"    \r\n",
+							"    \r\n",
+							"    ##                      ##\r\n",
+							"    ## Tratamento de Listas ##\r\n",
+							"    ##                      ##\r\n",
+							"    \r\n",
+							"    def list_to_expression(thislist, operator):\r\n",
+							"        index = 0\r\n",
+							"        # For \"AND\"\r\n",
+							"        if operator == \"and\":\r\n",
+							"            for column in thislist:\r\n",
+							"                if index == 0:\r\n",
+							"                    expression = column\r\n",
+							"                    index += 1\r\n",
+							"                    continue\r\n",
+							"                expression = expression & column\r\n",
+							"        # For \"OR\"\r\n",
+							"        if operator == \"or\":\r\n",
+							"            for column in thislist:\r\n",
+							"                if index == 0:\r\n",
+							"                    expression = column\r\n",
+							"                    index += 1\r\n",
+							"                    continue\r\n",
+							"                expression = expression | column\r\n",
+							"        return expression\r\n",
+							"    \r\n",
+							"    \r\n",
+							"    \r\n",
+							"    ##                  ##\r\n",
+							"    ## Funções de Tempo ##\r\n",
+							"    ##                  ##    \r\n",
+							"    \r\n",
+							"    def generate_datetime_series(date_start, date_end, interval_in_seconds=60*60*24, weekdays=[1,2,3,4,5,6,7]):\r\n",
+							"        # Determina inicio e fim\r\n",
+							"        date_start, date_end = spark\\\r\n",
+							"            .createDataFrame\\\r\n",
+							"              (\r\n",
+							"                [(date_start, date_end)], (\"date_start\", \"date_end\")\r\n",
+							"              )\\\r\n",
+							"            .select\\\r\n",
+							"              (\r\n",
+							"                [F.col(column).cast(\"timestamp\").cast(\"long\") for column in (\"date_start\", \"date_end\")]\r\n",
+							"              )\\\r\n",
+							"            .first()\r\n",
+							"        # Cria um range baseado no inicio e fim, com o interval_in_seconds em segundos\r\n",
+							"        df_range = spark\\\r\n",
+							"            .range\\\r\n",
+							"              (\r\n",
+							"                date_start,\r\n",
+							"                date_end,\r\n",
+							"                interval_in_seconds\r\n",
+							"              )\\\r\n",
+							"            .select\\\r\n",
+							"              (\r\n",
+							"                F.col(\"id\").cast(\"timestamp\").alias(\"value\"),\r\n",
+							"                F.date_format(F.col(\"id\").cast(\"timestamp\"), \"u\").alias(\"week\")\r\n",
+							"              )\\\r\n",
+							"            .filter( F.col(\"week\").isin(weekdays) )\r\n",
+							"        # Cria uma datetime_list com os valores\r\n",
+							"        date_format = \"%Y-%m-%d %H:%M:%S\"\r\n",
+							"        if interval_in_seconds%86400 == 0:\r\n",
+							"            date_format = \"%Y-%m-%d\"\r\n",
+							"\r\n",
+							"        datetime_list = [(row.value).strftime(date_format) for row in df_range.collect()]\r\n",
+							"        # Retorna a lista\r\n",
+							"        return datetime_list\r\n",
+							"    \r\n",
+							"    def wide_to_long(dataframe, colunas_para_transpor):\r\n",
+							"      # Libs\r\n",
+							"      from  pyspark.sql  import  functions  as F\r\n",
+							"      # Separador\r\n",
+							"      separador = \",\"\r\n",
+							"      # Array vazio pra colocar os fatos no formato correto e executar o unpivot\r\n",
+							"      columns_names_complete_array = dataframe.columns\r\n",
+							"      pivots_names_complete_array = [coluna for coluna in columns_names_complete_array if coluna not in colunas_para_transpor]\r\n",
+							"      fatos_names_complete_array = []\r\n",
+							"      # Loop de fatos dentro do array, populando a versão completa\r\n",
+							"      for fato in colunas_para_transpor:\r\n",
+							"        fatos_names_complete_array.append(f\"'{fato}'{separador} {fato} \")\r\n",
+							"      # Formatação da string que chama a função Unpivot (no spark usa-se stack)\r\n",
+							"      stack_string =  f\"stack ( {len(colunas_para_transpor)} , {separador.join(fatos_names_complete_array)}) as ( column , value )\"\r\n",
+							"      # Retorna\r\n",
+							"      return dataframe.selectExpr(*pivots_names_complete_array , stack_string)"
+						],
+						"outputs": [],
+						"execution_count": 38
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/library_versionControl')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "libraries"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkSmallPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 1,
+					"runAsWorkspaceSystemIdentity": false,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "1",
+						"spark.dynamicAllocation.maxExecutors": "1",
+						"spark.autotune.trackingId": "32aa7270-22b0-4767-80cc-50770b01beb1"
+					}
+				},
+				"metadata": {
+					"saveOutput": false,
+					"enableDebugMode": true,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/sparkSmallPool",
+						"name": "sparkSmallPool",
+						"type": "Spark",
+						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"source": [
+							"# Isso é basicamente pra evitarmos de gerar muitas variáveis e poluir o código. Fazendo dessa forma, temos um nome geral para as variaveis e chamamos apenas o nó (ou gravamos apenas no nó)\r\n",
+							"# Esse aqui é pro dataframe final\r\n",
+							"class HistoryZoneObject(object):\r\n",
+							"    dataframe = \"\"\r\n",
+							"    join = \"\"\r\n",
+							"    new_entries = \"\"\r\n",
+							"    obsolete_entries = \"\"\r\n",
+							"    changed_entries_history = \"\"\r\n",
+							"    changed_entries_new = \"\"\r\n",
+							"    not_changed = \"\"\r\n",
+							"    quality = \"\""
+						],
+						"outputs": [],
+						"execution_count": 54
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"# Função para transformar uma lista de expressões numa expressão única.\r\n",
+							"class version_control:\r\n",
+							"    \r\n",
+							"    def versionate(df_raw, df_trusted, key_columns = [], value_columns = []):\r\n",
+							"        \r\n",
+							"        # Inicia validando todas as condições utilizadas no versionamento\r\n",
+							"        join_condition = [ F.col(f\"raw_{column}\") == F.col(f\"trusted_{column}\") for column in key_columns]\r\n",
+							"        join_condition = basic_functions.list_to_expression(join_condition, \"and\")\r\n",
+							"\r\n",
+							"        inTrusted_condition = ~(F.col(f\"trusted_{key_columns[0]}\").isNull())\r\n",
+							"\r\n",
+							"        inRaw_condition = ~(F.col(f\"raw_{key_columns[0]}\").isNull())\r\n",
+							"\r\n",
+							"        isChanged_condition = [ (~ F.col(f'trusted_{column}').eqNullSafe( F.col(f'raw_{column}') ) ) for column in value_columns]\r\n",
+							"        isChanged_condition = basic_functions.list_to_expression(isChanged_condition, \"or\")\r\n",
+							"        \r\n",
+							"        # Mostra as condições\r\n",
+							"        # print\\\r\n",
+							"        # (\r\n",
+							"        #     f\"\"\"\r\n",
+							"        #     Condição Join      : \\n{join_condition}\\n\r\n",
+							"        #     Está em Ambos      : \\n{inTrustedInRaw_condition}\\n\r\n",
+							"        #     Está na Trusted    : \\n{inTrustedNotRaw_condition}\\n\r\n",
+							"        #     Não está na trusted: \\n{notTrustedInRaw_condition}\\n\r\n",
+							"        #     Houve alteração    : \\n{isChanged_condition}\r\n",
+							"        #     \"\"\"\r\n",
+							"        # )\r\n",
+							"        \r\n",
+							"        # Declara o dataframe final, que contém todos os dataframes do versionamento\r\n",
+							"        df_final = HistoryZoneObject()\r\n",
+							"        \r\n",
+							"        # Prepara os dataframes p/ join e tratamentos futuros\r\n",
+							"        df_raw_tratado = \\\r\n",
+							"            df_raw\\\r\n",
+							"                .select( [ F.col(column).alias(\"raw_\"+column) for column in df_raw.columns ] )\r\n",
+							"\r\n",
+							"        df_trusted_tratado = \\\r\n",
+							"            df_trusted\\\r\n",
+							"                .select( [ F.col(column).alias(\"trusted_\"+column) for column in df_trusted.columns ])\r\n",
+							"        \r\n",
+							"        # Une e prepara p/ versionar\r\n",
+							"        df_final.join = \\\r\n",
+							"            df_trusted_tratado\\\r\n",
+							"                .join\\\r\n",
+							"                (\r\n",
+							"                    df_raw_tratado,\r\n",
+							"                    (\r\n",
+							"                        join_condition\r\n",
+							"                    ),\r\n",
+							"                    how = \"full_outer\"\r\n",
+							"                )\r\n",
+							"        # Mostra o Join\r\n",
+							"        # display(df_final.join)\r\n",
+							"        \r\n",
+							"        \r\n",
+							"        # Começamos o versionamento!\r\n",
+							"        \r\n",
+							"        \r\n",
+							"        # Novas Entradas\r\n",
+							"        df_final.new_entries = \\\r\n",
+							"            df_final.join\\\r\n",
+							"                .filter\\\r\n",
+							"                (\r\n",
+							"                    ~inTrusted_condition & inRaw_condition\r\n",
+							"                )\\\r\n",
+							"                .select([c for c in df_final.join.columns if c.startswith(\"raw_\")])\\\r\n",
+							"                .toDF(*(c.replace(\"raw_\", \"\") for c in df_raw_tratado.columns))\\\r\n",
+							"                .withColumn(\"metadata_dt_start\",F.lit(today))\\\r\n",
+							"                .withColumn(\"metadata_dt_end\",F.lit(None))\\\r\n",
+							"                .withColumn(\"metadata_bool_active\",F.lit(True))\r\n",
+							"        \r\n",
+							"        # Mostra as novas entradas\r\n",
+							"        # display(df_final.new_entries)\r\n",
+							"        \r\n",
+							"        # Entradas Alteradas (p/ histórico)\r\n",
+							"        df_final.changed_entries_history = \\\r\n",
+							"            df_final.join\\\r\n",
+							"                .filter\\\r\n",
+							"                ( \r\n",
+							"                    inTrusted_condition & inRaw_condition &\r\n",
+							"                    isChanged_condition\r\n",
+							"                )\\\r\n",
+							"                .select( [ column for column in df_final.join.columns if column.startswith(\"trusted_\") ] )\r\n",
+							"\r\n",
+							"        df_final.changed_entries_history = \\\r\n",
+							"            df_final.changed_entries_history\\\r\n",
+							"                .toDF(*(column.replace(\"trusted_\", \"\") for column in df_final.changed_entries_history.columns))\\\r\n",
+							"                .withColumn(\"metadata_dt_end\",F.lit(today))\\\r\n",
+							"                .withColumn(\"metadata_bool_active\",F.lit(False))\r\n",
+							"\r\n",
+							"        # Mostra as entradas alteradas (p/ histórico)\r\n",
+							"        # display(df_final.changed_entries_history)\r\n",
+							"        \r\n",
+							"        # Entradas Alteradas (novas versões)\r\n",
+							"        df_final.changed_entries_new = \\\r\n",
+							"            df_final.join\\\r\n",
+							"                .filter\\\r\n",
+							"                    (\r\n",
+							"                      inTrusted_condition & inRaw_condition &\r\n",
+							"                      isChanged_condition\r\n",
+							"                    )\\\r\n",
+							"                .select( [ column for column in df_final.join.columns if column.startswith(\"raw_\") ] )\r\n",
+							"        \r\n",
+							"        df_final.changed_entries_new = \\\r\n",
+							"            df_final.changed_entries_new\\\r\n",
+							"                .toDF(*(column.replace(\"raw_\", \"\") for column in df_final.changed_entries_new.columns))\\\r\n",
+							"                .withColumn(\"metadata_dt_start\",F.lit(today))\\\r\n",
+							"                .withColumn(\"metadata_dt_end\",F.lit(None))\\\r\n",
+							"                .withColumn(\"metadata_bool_active\",F.lit(True))\r\n",
+							"\r\n",
+							"        # Mostra as entradas alteradas (novas versões)\r\n",
+							"        # display(df_final.changed_entries_new)\r\n",
+							"        \r\n",
+							"        # Entradas não alteradas\r\n",
+							"        df_final.not_changed = \\\r\n",
+							"            df_final.join\\\r\n",
+							"                .filter\\\r\n",
+							"                ( \r\n",
+							"                    inTrusted_condition & inRaw_condition &\r\n",
+							"                    ~isChanged_condition\r\n",
+							"                )\\\r\n",
+							"                .select( [ column for column in df_final.join.columns if column.startswith(\"trusted_\") ] )\r\n",
+							"        \r\n",
+							"        df_final.not_changed = \\\r\n",
+							"            df_final.not_changed\\\r\n",
+							"                .toDF(*(column.replace(\"trusted_\", \"\") for column in df_final.not_changed.columns))\r\n",
+							"\r\n",
+							"        # Mostra as entradas não alteradas\r\n",
+							"        # display(df_final.not_changed)\r\n",
+							"        \r\n",
+							"        # Entradas Obsoletas\r\n",
+							"        df_final.obsolete_entries = \\\r\n",
+							"            df_final.join\\\r\n",
+							"              .filter\\\r\n",
+							"                (\r\n",
+							"                   inTrusted_condition & ~inRaw_condition\r\n",
+							"                )\\\r\n",
+							"              .select( [ column for column in df_final.join.columns if column.startswith(\"trusted_\") ] )\\\r\n",
+							"              .toDF(*(column.replace(\"trusted_\", \"\") for column in df_trusted_tratado.columns))\\\r\n",
+							"              .withColumn(\"metadata_dt_end\",F.lit(today))\\\r\n",
+							"              .withColumn(\"metadata_bool_active\",F.lit(False))\r\n",
+							"\r\n",
+							"        # Vamos mostrar as entradas obsoletas\r\n",
+							"        # display(df_final.obsolete_entries)\r\n",
+							"        \r\n",
+							"        # Mostra todas as entradas\r\n",
+							"        # print\\\r\n",
+							"        # (\r\n",
+							"        #     f\"\"\"\r\n",
+							"        #     Novas: {df_final.new_entries.count()} \\n\r\n",
+							"        #     Obsoletas: {df_final.obsolete_entries.count()} \\n\r\n",
+							"        #     Alteradas: {df_final.changed_entries_history.count()} \\n\r\n",
+							"        #     Não Alteradas {df_final.not_changed.count()}\r\n",
+							"        #     \"\"\"\r\n",
+							"        # )\r\n",
+							"        \r\n",
+							"        # Une todas as partes que tratamos acima\r\n",
+							"\r\n",
+							"        # print\\\r\n",
+							"        # (\r\n",
+							"        #     f\"\"\"\r\n",
+							"        #     new: {df_final.new_entries.columns}\\n\\n\r\n",
+							"        #     obsolete: {df_final.obsolete_entries.columns}\\n\\n\r\n",
+							"        #     changed1: {df_final.changed_entries_history.columns}\\n\\n\r\n",
+							"        #     changed2: {df_final.changed_entries_new.columns}\\n\\n\r\n",
+							"        #     notchanged: {df_final.not_changed.columns}\r\n",
+							"        #     \"\"\"\r\n",
+							"        # )\r\n",
+							"        \r\n",
+							"        df_final.dataframe = \\\r\n",
+							"            df_final.new_entries\\\r\n",
+							"            .unionByName(df_final.obsolete_entries)\\\r\n",
+							"            .unionByName(df_final.changed_entries_history)\\\r\n",
+							"            .unionByName(df_final.changed_entries_new)\\\r\n",
+							"            .unionByName(df_final.not_changed)\r\n",
+							"        \r\n",
+							"        \r\n",
+							"        return df_final"
+						],
+						"outputs": [],
+						"execution_count": 55
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sftp_pf1_cd82_raw_trusted')]",
+			"type": "Microsoft.Synapse/workspaces/notebooks",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"folder": {
+					"name": "sources/sftp/pf1/cd82"
+				},
+				"nbformat": 4,
+				"nbformat_minor": 2,
+				"bigDataPool": {
+					"referenceName": "sparkSmallPool",
+					"type": "BigDataPoolReference"
+				},
+				"sessionProperties": {
+					"driverMemory": "28g",
+					"driverCores": 4,
+					"executorMemory": "28g",
+					"executorCores": 4,
+					"numExecutors": 2,
+					"runAsWorkspaceSystemIdentity": true,
+					"conf": {
+						"spark.dynamicAllocation.enabled": "false",
+						"spark.dynamicAllocation.minExecutors": "2",
+						"spark.dynamicAllocation.maxExecutors": "2",
+						"spark.autotune.trackingId": "a65b5ac1-673c-455b-a8d0-c78360a3ff0e"
+					}
+				},
+				"metadata": {
+					"saveOutput": false,
+					"enableDebugMode": true,
+					"kernelspec": {
+						"name": "synapse_pyspark",
+						"display_name": "Synapse PySpark"
+					},
+					"language_info": {
+						"name": "python"
+					},
+					"a365ComputeOptions": {
+						"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/sparkSmallPool",
+						"name": "sparkSmallPool",
+						"type": "Spark",
+						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
+						"auth": {
+							"type": "AAD",
+							"authResource": "https://dev.azuresynapse.net",
+							"authHeader": null
+						},
+						"sparkVersion": "3.2",
+						"nodeCount": 10,
+						"cores": 4,
+						"memory": 28,
+						"extraHeader": null
+					},
+					"sessionKeepAliveTimeout": 30
+				},
+				"cells": [
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%run libraries/library_startingVariables"
+						],
+						"outputs": [],
+						"execution_count": 22
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"%run libraries/library_versionControl"
+						],
+						"outputs": [],
+						"execution_count": 23
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"sourceType = 'sftp'\r\n",
+							"sourceName = 'pf1'\r\n",
+							"datasetName = 'cd82'"
+						],
+						"outputs": [],
+						"execution_count": 24
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"outputs_hidden": false
+							}
+						},
+						"source": [
+							"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')"
+						],
+						"outputs": [],
+						"execution_count": 25
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"try:\r\n",
+							"    df_trusted = basic_functions.read(sourceType, sourceName, datasetName, 'trusted')\\\r\n",
+							"        .filter(F.col(\"metadata_bool_active\") == True)\\\r\n",
+							"        .cast(\"metadata_bool_active\", \"boolean\")\r\n",
+							"except:\r\n",
+							"    df_trusted = df_raw\\\r\n",
+							"        .filter(\"1 = 0\")\\\r\n",
+							"        .withColumn(\"metadata_dt_start\", F.lit(None).cast(T.DateType()))\\\r\n",
+							"        .withColumn(\"metadata_dt_end\", F.lit(None).cast(T.DateType()))\\\r\n",
+							"        .withColumn(\"metadata_bool_active\", F.lit(True).cast(T.BooleanType()))\r\n",
+							""
+						],
+						"outputs": [],
+						"execution_count": 26
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"key_columns = ['COD_ITEM_ORIGEM']\r\n",
+							"metadata_columns = ['metadata_str_pipelineRunId', 'metadata_tms_pipelineRunTime']\r\n",
+							"all_columns = df_raw.columns \r\n",
+							"value_columns = [column for column in all_columns if column not in key_columns + metadata_columns]"
+						],
+						"outputs": [],
+						"execution_count": 27
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": false
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							}
+						},
+						"source": [
+							"df_final = version_control.versionate(df_raw, df_trusted, key_columns, value_columns)"
+						],
+						"outputs": [],
+						"execution_count": 28
+					},
+					{
+						"cell_type": "code",
+						"metadata": {
+							"jupyter": {
+								"source_hidden": false,
+								"outputs_hidden": true
+							},
+							"nteract": {
+								"transient": {
+									"deleting": false
+								}
+							},
+							"collapsed": false
+						},
+						"source": [
+							"basic_functions.write(df_final.dataframe.filter(F.col(\"metadata_bool_active\") == True ), sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"metadata_bool_active\"])\r\n",
+							"basic_functions.write(df_final.dataframe.filter(F.col(\"metadata_bool_active\") == False), sourceType, sourceName, datasetName, 'trusted', 'append', [\"metadata_bool_active\"])"
+						],
+						"outputs": [],
+						"execution_count": 29
+					}
+				]
+			},
+			"dependsOn": []
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/sparkSmallPool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 3,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Small",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": true,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/HALargePool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 4,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Large",
+				"nodeSizeFamily": "HardwareAcceleratedGPU",
+				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
+		},
+		{
+			"name": "[concat(parameters('workspaceName'), '/MOLargePool')]",
+			"type": "Microsoft.Synapse/workspaces/bigDataPools",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"autoPause": {
+					"enabled": true,
+					"delayInMinutes": 15
+				},
+				"autoScale": {
+					"enabled": true,
+					"maxNodeCount": 4,
+					"minNodeCount": 3
+				},
+				"nodeCount": 10,
+				"nodeSize": "Large",
+				"nodeSizeFamily": "MemoryOptimized",
+				"sparkVersion": "3.2",
+				"isComputeIsolationEnabled": false,
+				"sessionLevelPackagesEnabled": false,
+				"annotations": []
+			},
+			"dependsOn": [],
+			"location": "eastus"
+		}
+	]
+}

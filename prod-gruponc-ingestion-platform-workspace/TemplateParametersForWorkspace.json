@@ -1,0 +1,30 @@
+{
+	"$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentParameters.json#",
+	"contentVersion": "1.0.0.0",
+	"parameters": {
+		"workspaceName": {
+			"value": "prod-gruponc-ingestion-platform-workspace"
+		},
+		"prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultSqlServer_connectionString": {
+			"value": ""
+		},
+		"ftp_imshealth_gruponc_properties_typeProperties_host": {
+			"value": "ftp.imshealth.com.br"
+		},
+		"ftp_imshealth_gruponc_properties_typeProperties_userName": {
+			"value": "ems_bi"
+		},
+		"prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage_properties_typeProperties_url": {
+			"value": "https://prodgruponcdatalake.dfs.core.windows.net"
+		},
+		"prod_keyvault_properties_typeProperties_baseUrl": {
+			"value": "https://prod-gruponc-kv.vault.azure.net/"
+		},
+		"sftp_pf1_gruponc_properties_typeProperties_host": {
+			"value": "sftp-pf1.gruponc.net.br"
+		},
+		"sftp_pf1_gruponc_properties_typeProperties_userName": {
+			"value": "ftp.datablues"
+		}
+	}
+}
