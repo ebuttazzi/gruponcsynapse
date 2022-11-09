@@ -17,6 +17,22 @@
 				"typeProperties": {
 					"source": {
 						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "metadata_str_pipelineRunId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "metadata_tms_pipelineRunTime",
+								"value": {
+									"value": "@utcnow()",
+									"type": "Expression"
+								}
+							}
+						],
 						"storeSettings": {
 							"type": "FtpReadSettings",
 							"recursive": true,
@@ -40,6 +56,154 @@
 					"enableStaging": false,
 					"translator": {
 						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CHAVE_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_FORNECEDOR_ORIGEM",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_FORNECEDOR",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CAMPO_2",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_3",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_FORNECEDOR_MATRIZ_ORIGEM",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_4",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_GRUPO_CONTAS_ORIGEM",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_5",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_PAIS_ORIGEM",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_6",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_REGIAO_GEOGRAFICA",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_7",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_UF_ORIGEM",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_8",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_CIDADE",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_9",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CAMPO_9",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_10",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "CAMPO_10",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
 						"typeConversion": true,
 						"typeConversionSettings": {
 							"allowDataTruncation": true,
