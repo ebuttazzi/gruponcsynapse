@@ -1,0 +1,39 @@
+{
+	"name": "datalake_binary",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"sourceType": {
+				"type": "string"
+			},
+			"sourceName": {
+				"type": "string"
+			},
+			"datasetName": {
+				"type": "string"
+			},
+			"datalakeContainer": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "AzureBlobFSLocation",
+				"folderPath": {
+					"value": "@{dataset().sourceType}/@{dataset().sourceName}/@{dataset().datasetName}",
+					"type": "Expression"
+				},
+				"fileSystem": {
+					"value": "@dataset().datalakeContainer",
+					"type": "Expression"
+				}
+			}
+		}
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

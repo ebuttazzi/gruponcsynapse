@@ -1,0 +1,506 @@
+{
+	"name": "sftp_pf1_cd82_ppl",
+	"properties": {
+		"activities": [
+			{
+				"name": "source to raw",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:15:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "metadata_str_pipelineRunId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "metadata_tms_pipelineRunTime",
+								"value": {
+									"value": "@utcnow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "FtpReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false,
+							"useBinaryTransfer": true,
+							"disableChunking": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "AvroSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "AvroWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"enableSkipIncompatibleRow": true,
+					"logSettings": {
+						"enableCopyActivityLog": true,
+						"copyActivityLogSettings": {
+							"logLevel": "Info",
+							"enableReliableLogging": false
+						},
+						"logLocationSettings": {
+							"linkedServiceName": {
+								"referenceName": "prod-gruponc-ingestion-platform-workspace-WorkspaceDefaultStorage",
+								"type": "LinkedServiceReference"
+							},
+							"path": "logs/sftp/pf1/cd82/"
+						}
+					},
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CHAVE_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_ITEM_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_ITEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_TIPO_MATERIAL_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_3",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_FAMILIA_PRODUTO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_4",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_APRESENTACAO_PRDUTO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_5",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_DESCRICAO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_6",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_GRUPO_MERCADORIA_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_7",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_CLS_TERAPEUTICA",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_8",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_GRP_CATEGORIA",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_9",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_TARJA",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_10",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_SETOR_ATIVIDADE_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_11",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_FRM_FARMA",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_12",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_DIVISAO_PRODUTO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_13",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_LINHA_PRODUTO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_14",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_EAN",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_15",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_UNIDADE_MEDIDA",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_16",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_GRUPO_MARKETING_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_17",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_GRUPO_MERC_EXTERNO_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_18",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_VIA_ADM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_19",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DESC_USO_CONTINUO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_20",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_PRINCIPIO_PMB",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_21",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_FORMA_FARMACEUTICA_ORIG",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_22",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_CONCENT_PMB",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_23",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_ITEM_CURVA_ABC_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_24",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_ITEM_CURVA_MARGEM_ORIGEM",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_25",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "QT_ESTOQUE_MAX_DIAS",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_26",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "QT_ESTOQUE_MIN_DIAS",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_27",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "QT_VALIDADE_MESES",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_28",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_CENTRO_PADRAO",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_29",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "QT_POR_CAIXA",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_30",
+									"type": "Int64",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "QT_POR_PALETE",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String",
+									"physicalType": "String"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String",
+									"physicalType": "String"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "sftp_pf1_cd82_dts",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "datalake_avro",
+						"type": "DatasetReference",
+						"parameters": {
+							"sourceType": "sftp",
+							"sourceName": "pf1",
+							"datasetName": "cd82",
+							"datalakeContainer": "raw"
+						}
+					}
+				]
+			},
+			{
+				"name": "sftp_pf1_cd82_raw_trusted",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "source to raw",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:15:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "sftp_pf1_cd82_raw_trusted",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "sparkSmallPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": null,
+					"driverSize": null
+				}
+			}
+		],
+		"folder": {
+			"name": "sftp/pf1/cd82"
+		},
+		"annotations": [],
+		"lastPublishTime": "2022-10-26T03:29:27Z"
+	},
+	"type": "Microsoft.Synapse/workspaces/pipelines"
+}

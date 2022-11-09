@@ -1,0 +1,11 @@
+{
+	"name": "prod_keyvault",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "AzureKeyVault",
+		"typeProperties": {
+			"baseUrl": "https://prod-gruponc-kv.vault.azure.net/"
+		}
+	}
+}

@@ -1,0 +1,321 @@
+{
+	"name": "library_startingVariables",
+	"properties": {
+		"folder": {
+			"name": "libraries"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "sparkSmallPool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 2,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "8d52c217-3bf4-48f8-b35b-c2495c0905e2"
+			}
+		},
+		"metadata": {
+			"saveOutput": false,
+			"enableDebugMode": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/sparkSmallPool",
+				"name": "sparkSmallPool",
+				"type": "Spark",
+				"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/sparkSmallPool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 4,
+				"memory": 28,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"source": [
+					"# Eu preciso de functions pra 10 milhões de coisas diferentes\r\n",
+					"import pyspark.sql.functions as F\r\n",
+					"# Eu preciso dos tipos pra ajustar a vida\r\n",
+					"import pyspark.sql.types as T\r\n",
+					"# Inteligência de data\r\n",
+					"import datetime as dt\r\n",
+					"import dateutil as du\r\n",
+					"import pytz"
+				],
+				"execution_count": 32
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Seta versão do Spark e do Driver no ambiente\r\n",
+					"import os\r\n",
+					"import sys\r\n",
+					"\r\n",
+					"os.environ['PYSPARK_PYTHON'] = sys.executable\r\n",
+					"os.environ['PYSPARK_DRIVER_PYTHON'] = sys.executable"
+				],
+				"execution_count": 33
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Spark em parser LEGACY\r\n",
+					"spark.conf.set(\"spark.sql.legacy.timeParserPolicy\",\"LEGACY\")"
+				],
+				"execution_count": 34
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Set Fuso horário\r\n",
+					"brazil_tz = pytz.timezone('Brazil/East')"
+				],
+				"execution_count": 35
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"# Vou precisar da execução atual\r\n",
+					"now = dt.datetime.now(brazil_tz)\r\n",
+					"# Começo puxando a data atual\r\n",
+					"today = dt.date.today()"
+				],
+				"execution_count": 36
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"class check:\r\n",
+					"    def datalake_zone(zone):\r\n",
+					"        if zone.lower() not in [\"raw\", \"trusted\", \"consume\"]:\r\n",
+					"             raise ValueError(f\"{zone} is not a valid zone.\")\r\n",
+					"    def config_dataType(dataType):\r\n",
+					"        if dataType.lower() not in [\"list\", \"transactional\", \"factual\"]:\r\n",
+					"             raise ValueError(f\"{dataType} is not a valid zone.\")\r\n",
+					"    def write_mode(mode):\r\n",
+					"        if mode.lower() not in [\"append\", \"overwrite\"]:\r\n",
+					"             raise ValueError(f\"{mode} is not a write mode.\")"
+				],
+				"execution_count": 37
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"class basic_functions:\r\n",
+					"    \r\n",
+					"    ##                      ##\r\n",
+					"    ## Auxiliares & Ocultas ##\r\n",
+					"    ##                      ##\r\n",
+					"    \r\n",
+					"    def _getpath(sourceType, sourceName, datasetName, lakeZone):\r\n",
+					"        \"\"\"\r\n",
+					"        \"Description\": \"Get the path from a config variable\",\r\n",
+					"        \"Arguments\": Config, Zone\r\n",
+					"        \"Return Type\": <class 'str'>\r\n",
+					"        \"\"\"\r\n",
+					"        return (f'abfss://{lakeZone}@prodgruponcdatalake.dfs.core.windows.net/{sourceType}/{sourceName}/{datasetName}')\r\n",
+					"    \r\n",
+					"    \r\n",
+					"    \r\n",
+					"    ##                    ##\r\n",
+					"    ## Leitura & Gravação ##\r\n",
+					"    ##                    ##\r\n",
+					"    \r\n",
+					"    def read(sourceType, sourceName, datasetName, lakeZone):\r\n",
+					"        check.datalake_zone(lakeZone)\r\n",
+					"        path = basic_functions._getpath(sourceType, sourceName, datasetName, lakeZone)\r\n",
+					"        if lakeZone == 'raw':\r\n",
+					"            return spark.read.format(\"avro\").load(path)\r\n",
+					"        else:\r\n",
+					"            return spark.read.format(\"parquet\").load(path)\r\n",
+					"    \r\n",
+					"    def write(dataframe, sourceType, sourceName, datasetName, lakeZone, mode=\"overwrite\", partitions=[], repartitions=1):\r\n",
+					"        check.datalake_zone(lakeZone)\r\n",
+					"        check.write_mode(mode)\r\n",
+					"        path = basic_functions._getpath(sourceType, sourceName, datasetName, lakeZone)\r\n",
+					"\r\n",
+					"        if lakeZone == 'raw':\r\n",
+					"            dataframe.repartition(repartitions).write.format('avro').mode(mode).save(path)\r\n",
+					"        elif partitions == []:\r\n",
+					"            dataframe.repartition(repartitions).write.format('parquet').mode(mode).save(path)\r\n",
+					"        else:\r\n",
+					"            dataframe.repartition(repartitions).write.format('parquet').partitionBy(partitions).mode(mode).save(path)\r\n",
+					"        \r\n",
+					"    \r\n",
+					"    \r\n",
+					"    ##                      ##\r\n",
+					"    ## Tratamento de Listas ##\r\n",
+					"    ##                      ##\r\n",
+					"    \r\n",
+					"    def list_to_expression(thislist, operator):\r\n",
+					"        index = 0\r\n",
+					"        # For \"AND\"\r\n",
+					"        if operator == \"and\":\r\n",
+					"            for column in thislist:\r\n",
+					"                if index == 0:\r\n",
+					"                    expression = column\r\n",
+					"                    index += 1\r\n",
+					"                    continue\r\n",
+					"                expression = expression & column\r\n",
+					"        # For \"OR\"\r\n",
+					"        if operator == \"or\":\r\n",
+					"            for column in thislist:\r\n",
+					"                if index == 0:\r\n",
+					"                    expression = column\r\n",
+					"                    index += 1\r\n",
+					"                    continue\r\n",
+					"                expression = expression | column\r\n",
+					"        return expression\r\n",
+					"    \r\n",
+					"    \r\n",
+					"    \r\n",
+					"    ##                  ##\r\n",
+					"    ## Funções de Tempo ##\r\n",
+					"    ##                  ##    \r\n",
+					"    \r\n",
+					"    def generate_datetime_series(date_start, date_end, interval_in_seconds=60*60*24, weekdays=[1,2,3,4,5,6,7]):\r\n",
+					"        # Determina inicio e fim\r\n",
+					"        date_start, date_end = spark\\\r\n",
+					"            .createDataFrame\\\r\n",
+					"              (\r\n",
+					"                [(date_start, date_end)], (\"date_start\", \"date_end\")\r\n",
+					"              )\\\r\n",
+					"            .select\\\r\n",
+					"              (\r\n",
+					"                [F.col(column).cast(\"timestamp\").cast(\"long\") for column in (\"date_start\", \"date_end\")]\r\n",
+					"              )\\\r\n",
+					"            .first()\r\n",
+					"        # Cria um range baseado no inicio e fim, com o interval_in_seconds em segundos\r\n",
+					"        df_range = spark\\\r\n",
+					"            .range\\\r\n",
+					"              (\r\n",
+					"                date_start,\r\n",
+					"                date_end,\r\n",
+					"                interval_in_seconds\r\n",
+					"              )\\\r\n",
+					"            .select\\\r\n",
+					"              (\r\n",
+					"                F.col(\"id\").cast(\"timestamp\").alias(\"value\"),\r\n",
+					"                F.date_format(F.col(\"id\").cast(\"timestamp\"), \"u\").alias(\"week\")\r\n",
+					"              )\\\r\n",
+					"            .filter( F.col(\"week\").isin(weekdays) )\r\n",
+					"        # Cria uma datetime_list com os valores\r\n",
+					"        date_format = \"%Y-%m-%d %H:%M:%S\"\r\n",
+					"        if interval_in_seconds%86400 == 0:\r\n",
+					"            date_format = \"%Y-%m-%d\"\r\n",
+					"\r\n",
+					"        datetime_list = [(row.value).strftime(date_format) for row in df_range.collect()]\r\n",
+					"        # Retorna a lista\r\n",
+					"        return datetime_list\r\n",
+					"    \r\n",
+					"    def wide_to_long(dataframe, colunas_para_transpor):\r\n",
+					"      # Libs\r\n",
+					"      from  pyspark.sql  import  functions  as F\r\n",
+					"      # Separador\r\n",
+					"      separador = \",\"\r\n",
+					"      # Array vazio pra colocar os fatos no formato correto e executar o unpivot\r\n",
+					"      columns_names_complete_array = dataframe.columns\r\n",
+					"      pivots_names_complete_array = [coluna for coluna in columns_names_complete_array if coluna not in colunas_para_transpor]\r\n",
+					"      fatos_names_complete_array = []\r\n",
+					"      # Loop de fatos dentro do array, populando a versão completa\r\n",
+					"      for fato in colunas_para_transpor:\r\n",
+					"        fatos_names_complete_array.append(f\"'{fato}'{separador} {fato} \")\r\n",
+					"      # Formatação da string que chama a função Unpivot (no spark usa-se stack)\r\n",
+					"      stack_string =  f\"stack ( {len(colunas_para_transpor)} , {separador.join(fatos_names_complete_array)}) as ( column , value )\"\r\n",
+					"      # Retorna\r\n",
+					"      return dataframe.selectExpr(*pivots_names_complete_array , stack_string)"
+				],
+				"execution_count": 38
+			}
+		]
+	}
+}

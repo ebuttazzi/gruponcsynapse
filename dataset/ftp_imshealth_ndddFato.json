@@ -1,0 +1,41 @@
+{
+	"name": "ftp_imshealth_ndddFato",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ftp_imshealth_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"yearMonth": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "Source"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": {
+					"value": "FFF_BRA_DDDMIX_176OXX_@{dataset().yearMonth}.zip",
+					"type": "Expression"
+				},
+				"folderPath": {
+					"value": "DDDMIX_TXT/@{dataset().yearMonth}",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": "\u0001",
+			"compressionCodec": "ZipDeflate",
+			"compressionLevel": "Fastest",
+			"encodingName": "UTF-8",
+			"escapeChar": "\\",
+			"firstRowAsHeader": false,
+			"quoteChar": "\""
+		},
+		"schema": []
+	},
+	"type": "Microsoft.Synapse/workspaces/datasets"
+}

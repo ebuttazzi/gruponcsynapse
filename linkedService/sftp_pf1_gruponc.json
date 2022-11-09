@@ -1,0 +1,28 @@
+{
+	"name": "sftp_pf1_gruponc",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"annotations": [],
+		"type": "FtpServer",
+		"typeProperties": {
+			"host": "sftp-pf1.gruponc.net.br",
+			"port": "2121",
+			"enableSsl": true,
+			"enableServerCertificateValidation": true,
+			"authenticationType": "Basic",
+			"userName": "ftp.datablues",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "prod_keyvault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "sftp-pf1-password"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}

@@ -1,0 +1,255 @@
+{
+	"name": "ftp_imshealth_ndddFato_raw_trusted",
+	"properties": {
+		"folder": {
+			"name": "sources/ftp/imshealth/ndddFato"
+		},
+		"nbformat": 4,
+		"nbformat_minor": 2,
+		"bigDataPool": {
+			"referenceName": "MOLargePool",
+			"type": "BigDataPoolReference"
+		},
+		"sessionProperties": {
+			"driverMemory": "28g",
+			"driverCores": 4,
+			"executorMemory": "28g",
+			"executorCores": 4,
+			"numExecutors": 10,
+			"runAsWorkspaceSystemIdentity": false,
+			"conf": {
+				"spark.dynamicAllocation.enabled": "false",
+				"spark.dynamicAllocation.minExecutors": "10",
+				"spark.dynamicAllocation.maxExecutors": "10",
+				"spark.autotune.trackingId": "662ee24e-8557-4635-bb6f-0068156abe3a"
+			}
+		},
+		"metadata": {
+			"saveOutput": false,
+			"enableDebugMode": true,
+			"kernelspec": {
+				"name": "synapse_pyspark",
+				"display_name": "Synapse PySpark"
+			},
+			"language_info": {
+				"name": "python"
+			},
+			"a365ComputeOptions": {
+				"id": "/subscriptions/2f369958-80c5-4a50-bccd-42c3cd88f385/resourceGroups/prod-gruponc-ingestion-platform/providers/Microsoft.Synapse/workspaces/prod-gruponc-ingestion-platform-workspace/bigDataPools/MOLargePool",
+				"name": "MOLargePool",
+				"type": "Spark",
+				"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/MOLargePool",
+				"auth": {
+					"type": "AAD",
+					"authResource": "https://dev.azuresynapse.net",
+					"authHeader": null
+				},
+				"sparkVersion": "3.2",
+				"nodeCount": 10,
+				"cores": 16,
+				"memory": 112,
+				"extraHeader": null
+			},
+			"sessionKeepAliveTimeout": 30
+		},
+		"cells": [
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"%run libraries/library_startingVariables"
+				],
+				"execution_count": 2
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					},
+					"tags": [
+						"parameters"
+					]
+				},
+				"source": [
+					"yearMonth = 202209"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"yearMonth = str(yearMonth)\r\n",
+					"yearMonths = du.parser.parse(f\"{yearMonth[0:4]}-{yearMonth[4:6]}\")"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"sourceType = 'ftp'\r\n",
+					"sourceName = 'imshealth'\r\n",
+					"datasetName = 'ndddFato'"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"outputs_hidden": false
+					}
+				},
+				"source": [
+					"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"datelist = [(yearMonths - du.relativedelta.relativedelta(months=x)).strftime(\"%Y_%m\") for x in range(24)]"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = df_raw.select\\\r\n",
+					"    (\r\n",
+					"        df_raw[\"body\"].substr(1, 10).cast(\"long\").alias(\"fcc\"),\r\n",
+					"        df_raw[\"body\"].substr(11, 9).cast(\"long\").alias(\"brick\"),\r\n",
+					"        df_raw[\"body\"].substr(20, 3).cast(\"long\").alias(\"regiCod\"),\r\n",
+					"        df_raw[\"body\"].substr(23, 4).cast(\"long\").alias(\"distCod\"),\r\n",
+					"        df_raw[\"body\"].substr(27, 6).cast(\"long\").alias(\"terrCod\"),\r\n",
+					"        df_raw[\"body\"].substr(33, 1).alias(\"clieLet\"),\r\n",
+					"        df_raw[\"body\"].substr(34, 4).cast(\"long\").alias(\"chanCod\"),\r\n",
+					"        df_raw[\"body\"].substr(38, 15).cast(\"double\").alias(datelist[0]),\r\n",
+					"        df_raw[\"body\"].substr(53, 15).cast(\"double\").alias(datelist[1]),\r\n",
+					"        df_raw[\"body\"].substr(68, 15).cast(\"double\").alias(datelist[2]),\r\n",
+					"        df_raw[\"body\"].substr(83, 15).cast(\"double\").alias(datelist[3]),\r\n",
+					"        df_raw[\"body\"].substr(98, 15).cast(\"double\").alias(datelist[4]),\r\n",
+					"        df_raw[\"body\"].substr(113, 15).cast(\"double\").alias(datelist[5]),\r\n",
+					"        df_raw[\"body\"].substr(128, 15).cast(\"double\").alias(datelist[6]),\r\n",
+					"        df_raw[\"body\"].substr(143, 15).cast(\"double\").alias(datelist[7]),\r\n",
+					"        df_raw[\"body\"].substr(158, 15).cast(\"double\").alias(datelist[8]),\r\n",
+					"        df_raw[\"body\"].substr(173, 15).cast(\"double\").alias(datelist[9]),\r\n",
+					"        df_raw[\"body\"].substr(188, 15).cast(\"double\").alias(datelist[10]),\r\n",
+					"        df_raw[\"body\"].substr(203, 15).cast(\"double\").alias(datelist[11]),\r\n",
+					"        df_raw[\"body\"].substr(218, 15).cast(\"double\").alias(datelist[12]),\r\n",
+					"        df_raw[\"body\"].substr(233, 15).cast(\"double\").alias(datelist[13]),\r\n",
+					"        df_raw[\"body\"].substr(248, 15).cast(\"double\").alias(datelist[14]),\r\n",
+					"        df_raw[\"body\"].substr(263, 15).cast(\"double\").alias(datelist[15]),\r\n",
+					"        df_raw[\"body\"].substr(278, 15).cast(\"double\").alias(datelist[16]),\r\n",
+					"        df_raw[\"body\"].substr(293, 15).cast(\"double\").alias(datelist[17]),\r\n",
+					"        df_raw[\"body\"].substr(308, 15).cast(\"double\").alias(datelist[18]),\r\n",
+					"        df_raw[\"body\"].substr(323, 15).cast(\"double\").alias(datelist[19]),\r\n",
+					"        df_raw[\"body\"].substr(338, 15).cast(\"double\").alias(datelist[20]),\r\n",
+					"        df_raw[\"body\"].substr(353, 15).cast(\"double\").alias(datelist[21]),\r\n",
+					"        df_raw[\"body\"].substr(368, 15).cast(\"double\").alias(datelist[22]),\r\n",
+					"        df_raw[\"body\"].substr(383, 15).cast(\"double\").alias(datelist[23]),\r\n",
+					"        df_raw[\"body\"].substr(398, 25).cast(\"double\").alias(\"sumControlUnitsPeriod\"),\r\n",
+					"        \"metadata_str_pipelineRunId\",\r\n",
+					"        F.col(\"metadata_tms_pipelineRunTime\").cast(\"timestamp\"),\r\n",
+					"        F.col(\"parameter_int_yearMonth\").cast(\"integer\")\r\n",
+					"    )"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"df = basic_functions.wide_to_long(df, datelist)\r\n",
+					"\r\n",
+					"df = df\\\r\n",
+					"    .withColumn(\"period\", F.to_date(F.col(\"column\"),\"yyyy_MM\"))\\\r\n",
+					"    .withColumn(\"unitsNumber\", F.col(\"value\"))\\\r\n",
+					"    .drop(\"column\", \"value\")\\\r\n",
+					"    .filter(F.col(\"unitsNumber\") > 0)"
+				]
+			},
+			{
+				"cell_type": "code",
+				"metadata": {
+					"jupyter": {
+						"source_hidden": false,
+						"outputs_hidden": false
+					},
+					"nteract": {
+						"transient": {
+							"deleting": false
+						}
+					}
+				},
+				"source": [
+					"basic_functions.write(df, sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"parameter_int_yearMonth\", \"period\"])"
+				]
+			}
+		]
+	}
+}

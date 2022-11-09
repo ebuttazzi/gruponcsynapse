@@ -1,0 +1,30 @@
+{
+	"name": "ftp_imshealth_gruponc",
+	"type": "Microsoft.Synapse/workspaces/linkedservices",
+	"properties": {
+		"description": "FTP IQVIA",
+		"annotations": [],
+		"type": "FtpServer",
+		"typeProperties": {
+			"host": "ftp.imshealth.com.br",
+			"port": "21",
+			"enableSsl": false,
+			"enableServerCertificateValidation": false,
+			"authenticationType": "Basic",
+			"userName": "ems_bi",
+			"password": {
+				"type": "AzureKeyVaultSecret",
+				"store": {
+					"referenceName": "prod_keyvault",
+					"type": "LinkedServiceReference"
+				},
+				"secretName": "ftp-imshealth-password",
+				"secretVersion": "0c951a68856940dcb7fee3e37ebc1ddf"
+			}
+		},
+		"connectVia": {
+			"referenceName": "AutoResolveIntegrationRuntime",
+			"type": "IntegrationRuntimeReference"
+		}
+	}
+}
