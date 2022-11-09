@@ -1,0 +1,31 @@
+{
+	"name": "sftp_pf1_cd10",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sftp_pf1_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"folder": {
+			"name": "Source"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": "CD10.TXT",
+				"folderPath": "loader/dwprd/INPUT/SAPR3"
+			},
+			"columnDelimiter": ";",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CHAVE_1;CAMPO_1;CAMPO_2;CAMPO_3;CAMPO_4;CAMPO_5;CAMPO_6;CAMPO_7",
+				"type": "String"
+			}
+		]
+	}
+}

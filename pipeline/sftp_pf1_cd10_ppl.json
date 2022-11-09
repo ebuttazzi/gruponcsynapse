@@ -1,0 +1,297 @@
+{
+	"name": "sftp_pf1_cd10_ppl",
+	"properties": {
+		"activities": [
+			{
+				"name": "source to raw",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:15:00",
+					"retry": 5,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"additionalColumns": [
+							{
+								"name": "metadata_str_pipelineRunId",
+								"value": {
+									"value": "@pipeline().RunId",
+									"type": "Expression"
+								}
+							},
+							{
+								"name": "metadata_tms_pipelineRunTime",
+								"value": {
+									"value": "@utcnow()",
+									"type": "Expression"
+								}
+							}
+						],
+						"storeSettings": {
+							"type": "FtpReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false,
+							"useBinaryTransfer": true,
+							"disableChunking": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"sink": {
+						"type": "ParquetSink",
+						"storeSettings": {
+							"type": "AzureBlobFSWriteSettings"
+						},
+						"formatSettings": {
+							"type": "ParquetWriteSettings"
+						}
+					},
+					"enableStaging": false,
+					"translator": {
+						"type": "TabularTranslator",
+						"mappings": [
+							{
+								"source": {
+									"name": "CHAVE_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_PROJETO_PS",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_1",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_PROJETO_PS",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_2",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_RESPO_PROJETO_PS",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_3",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_SOLICITANTE_PS",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_4",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "COD_TIPO_PROJETO_PS",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_5",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_SITUACAO_PS",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_6",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_EMPRESA_RESUMIDO",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_7",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DAT_INICIO_PLANEJADA",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_8",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "DAT_FIM_PLANEJADA",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_9",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_SIT_PROJETO_PD",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_10",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_SIT_ESTUDO_CLINICO",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_11",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_ETAPA_ESTUDO",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "CAMPO_12",
+									"type": "String",
+									"physicalType": "String"
+								},
+								"sink": {
+									"name": "NOM_MEDICAMENTO_REFERENCIA",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_str_pipelineRunId",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							},
+							{
+								"source": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String"
+								},
+								"sink": {
+									"name": "metadata_tms_pipelineRunTime",
+									"type": "String",
+									"physicalType": "UTF8"
+								}
+							}
+						],
+						"typeConversion": true,
+						"typeConversionSettings": {
+							"allowDataTruncation": true,
+							"treatBooleanAsNumber": false
+						}
+					}
+				},
+				"inputs": [
+					{
+						"referenceName": "sftp_pf1_cd10",
+						"type": "DatasetReference"
+					}
+				],
+				"outputs": [
+					{
+						"referenceName": "datalake_parquet",
+						"type": "DatasetReference",
+						"parameters": {
+							"sourceType": "sftp",
+							"sourceName": "pf1",
+							"datasetName": "cd10",
+							"datalakeContainer": "raw"
+						}
+					}
+				]
+			},
+			{
+				"name": "raw to trusted",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "source to raw",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.00:15:00",
+					"retry": 5,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "sftp_pf1_cd10_raw_trusted",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "sparkSmallPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": false,
+						"spark.dynamicAllocation.minExecutors": 1,
+						"spark.dynamicAllocation.maxExecutors": 1
+					},
+					"driverSize": "Small",
+					"numExecutors": 1
+				}
+			}
+		],
+		"folder": {
+			"name": "sftp/pf1/cd10"
+		},
+		"annotations": []
+	}
+}
