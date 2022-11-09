@@ -1,0 +1,18 @@
+{
+	"name": "ftp_imshealth_cepbrick",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ftp_imshealth_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "Binary",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": "CEPBRICK.ZIP",
+				"folderPath": "DDDMIX_TXT/202209"
+			}
+		}
+	}
+}
