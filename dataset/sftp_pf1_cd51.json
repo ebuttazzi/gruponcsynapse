@@ -1,5 +1,5 @@
 {
-	"name": "pf1_sapr3",
+	"name": "sftp_pf1_cd51",
 	"properties": {
 		"linkedServiceName": {
 			"referenceName": "sftp_pf1_gruponc",
@@ -16,7 +16,7 @@
 				"fileName": "CD51.TXT",
 				"folderPath": "loader/dwprd/INPUT/SAPR3"
 			},
-			"columnDelimiter": ",",
+			"columnDelimiter": ";",
 			"escapeChar": "\\",
 			"quoteChar": "\""
 		},
