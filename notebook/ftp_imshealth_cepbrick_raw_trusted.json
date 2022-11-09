@@ -11,17 +11,17 @@
 			"type": "BigDataPoolReference"
 		},
 		"sessionProperties": {
-			"driverMemory": "28g",
-			"driverCores": 4,
-			"executorMemory": "28g",
-			"executorCores": 4,
-			"numExecutors": 10,
+			"driverMemory": "112g",
+			"driverCores": 16,
+			"executorMemory": "112g",
+			"executorCores": 16,
+			"numExecutors": 2,
 			"runAsWorkspaceSystemIdentity": false,
 			"conf": {
 				"spark.dynamicAllocation.enabled": "false",
-				"spark.dynamicAllocation.minExecutors": "10",
-				"spark.dynamicAllocation.maxExecutors": "10",
-				"spark.autotune.trackingId": "8be937b2-07b1-49a4-9e86-815be6478d81"
+				"spark.dynamicAllocation.minExecutors": "2",
+				"spark.dynamicAllocation.maxExecutors": "2",
+				"spark.autotune.trackingId": "19fe6afe-f040-4f3b-bb7a-d202caa0576e"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 				"source": [
 					"%run libraries/library_startingVariables"
 				],
-				"execution_count": 2
+				"execution_count": 1
 			},
 			{
 				"cell_type": "code",
@@ -126,7 +126,7 @@
 				"source": [
 					"sourceType = 'ftp'\r\n",
 					"sourceName = 'imshealth'\r\n",
-					"datasetName = 'ndddFato'"
+					"datasetName = 'cepbrick'"
 				],
 				"execution_count": null
 			},
