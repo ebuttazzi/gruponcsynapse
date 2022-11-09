@@ -164,8 +164,7 @@
 									"physicalType": "String"
 								},
 								"sink": {
-									"name": "CAMPO_9",
-									"type": "String",
+									"name": "IE_FORNECEDOR",
 									"physicalType": "UTF8"
 								}
 							},
@@ -176,8 +175,7 @@
 									"physicalType": "String"
 								},
 								"sink": {
-									"name": "CAMPO_10",
-									"type": "String",
+									"name": "CEP_FORNECEDOR",
 									"physicalType": "UTF8"
 								}
 							},
@@ -229,6 +227,42 @@
 						}
 					}
 				]
+			},
+			{
+				"name": "raw to trusted",
+				"type": "SynapseNotebook",
+				"dependsOn": [
+					{
+						"activity": "source to raw",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"timeout": "0.15:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "sftp_pf1_cd80_raw_trusted",
+						"type": "NotebookReference"
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "sparkSmallPool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": false
+					},
+					"driverSize": "Small"
+				}
 			}
 		],
 		"folder": {
