@@ -55,13 +55,12 @@
 						}
 					},
 					"sink": {
-						"type": "AvroSink",
+						"type": "ParquetSink",
 						"storeSettings": {
 							"type": "AzureBlobFSWriteSettings"
 						},
 						"formatSettings": {
-							"type": "AvroWriteSettings",
-							"maxRowsPerFile": 10000000
+							"type": "ParquetWriteSettings"
 						}
 					},
 					"enableStaging": false,
@@ -130,7 +129,7 @@
 				],
 				"outputs": [
 					{
-						"referenceName": "datalake_avro",
+						"referenceName": "datalake_parquet",
 						"type": "DatasetReference",
 						"parameters": {
 							"sourceType": "ftp",
@@ -174,7 +173,13 @@
 							"type": "int"
 						}
 					},
-					"snapshot": true
+					"snapshot": true,
+					"conf": {
+						"spark.dynamicAllocation.enabled": null,
+						"spark.dynamicAllocation.minExecutors": null,
+						"spark.dynamicAllocation.maxExecutors": null
+					},
+					"numExecutors": null
 				}
 			}
 		],
