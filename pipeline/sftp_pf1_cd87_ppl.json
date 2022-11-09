@@ -1,0 +1,46 @@
+{
+	"name": "sftp_pf1_cd87_ppl",
+	"properties": {
+		"activities": [
+			{
+				"name": "source to raw",
+				"type": "Copy",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.00:15:00",
+					"retry": 5,
+					"retryIntervalInSeconds": 60,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "DelimitedTextSource",
+						"storeSettings": {
+							"type": "FtpReadSettings",
+							"recursive": true,
+							"enablePartitionDiscovery": false,
+							"useBinaryTransfer": true,
+							"disableChunking": false
+						},
+						"formatSettings": {
+							"type": "DelimitedTextReadSettings"
+						}
+					},
+					"enableStaging": false
+				},
+				"inputs": [
+					{
+						"referenceName": "sftp_pf1_cd87",
+						"type": "DatasetReference"
+					}
+				]
+			}
+		],
+		"folder": {
+			"name": "sftp/pf1/cd87"
+		},
+		"annotations": []
+	}
+}
