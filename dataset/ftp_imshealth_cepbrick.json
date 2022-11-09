@@ -1,0 +1,37 @@
+{
+	"name": "ftp_imshealth_cepbrick",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "ftp_imshealth_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"parameters": {
+			"yearMonth": {
+				"type": "string"
+			}
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": "CEPBRICK.ZIP",
+				"folderPath": {
+					"value": "DDDMIX_TXT/@{dataset().yearMonth}",
+					"type": "Expression"
+				}
+			},
+			"columnDelimiter": ",",
+			"escapeChar": "\\",
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"type": "String"
+			},
+			{
+				"type": "String"
+			}
+		]
+	}
+}
