@@ -1,0 +1,36 @@
+{
+	"name": "sftp_pf1_cd46",
+	"properties": {
+		"linkedServiceName": {
+			"referenceName": "sftp_pf1_gruponc",
+			"type": "LinkedServiceReference"
+		},
+		"annotations": [],
+		"type": "DelimitedText",
+		"typeProperties": {
+			"location": {
+				"type": "FtpServerLocation",
+				"fileName": "CD046.TXT",
+				"folderPath": "loader/dwprd/INPUT/SAPR3"
+			},
+			"columnDelimiter": ";",
+			"escapeChar": "\\",
+			"firstRowAsHeader": true,
+			"quoteChar": "\""
+		},
+		"schema": [
+			{
+				"name": "CHAVE_1",
+				"type": "String"
+			},
+			{
+				"name": "CAMPO_1",
+				"type": "String"
+			},
+			{
+				"name": "CAMPO_2",
+				"type": "String"
+			}
+		]
+	}
+}
