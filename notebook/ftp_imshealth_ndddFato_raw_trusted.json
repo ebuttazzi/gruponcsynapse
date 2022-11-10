@@ -21,7 +21,7 @@
 				"spark.dynamicAllocation.enabled": "false",
 				"spark.dynamicAllocation.minExecutors": "2",
 				"spark.dynamicAllocation.maxExecutors": "2",
-				"spark.autotune.trackingId": "83c7bc78-02ef-447f-b3b5-7c34e8b5a2c7"
+				"spark.autotune.trackingId": "f089bf09-e9d0-431d-906b-608684e587d8"
 			}
 		},
 		"metadata": {
@@ -68,7 +68,7 @@
 				"source": [
 					"%run libraries/library_startingVariables"
 				],
-				"execution_count": 6
+				"execution_count": 24
 			},
 			{
 				"cell_type": "code",
@@ -89,7 +89,7 @@
 				"source": [
 					"yearMonth = 202209"
 				],
-				"execution_count": 7
+				"execution_count": 25
 			},
 			{
 				"cell_type": "code",
@@ -108,7 +108,7 @@
 					"yearMonth = str(yearMonth)\r\n",
 					"yearMonths = du.parser.parse(f\"{yearMonth[0:4]}-{yearMonth[4:6]}\")"
 				],
-				"execution_count": 8
+				"execution_count": 26
 			},
 			{
 				"cell_type": "code",
@@ -128,7 +128,7 @@
 					"sourceName = 'imshealth'\r\n",
 					"datasetName = 'ndddFato'"
 				],
-				"execution_count": 9
+				"execution_count": 27
 			},
 			{
 				"cell_type": "code",
@@ -144,14 +144,14 @@
 					}
 				},
 				"source": [
-					"schema = \\\r\n",
-					"    T.StructType() \\\r\n",
-					"      .add(\"body\",T.StringType(),True) \\\r\n",
-					"      .add(\"metadata_str_pipelineRunId\",T.StringType(),True) \\\r\n",
-					"      .add(\"metadata_tms_pipelineRunTime\",T.StringType(),True) \\\r\n",
-					"      .add(\"parameter_int_yearMonth\",T.StringType(),True)"
+					"# schema = \\\r\n",
+					"#     T.StructType() \\\r\n",
+					"#       .add(\"body\",T.StringType(),True) \\\r\n",
+					"#       .add(\"metadata_str_pipelineRunId\",T.StringType(),True) \\\r\n",
+					"#       .add(\"metadata_tms_pipelineRunTime\",T.StringType(),True) \\\r\n",
+					"#       .add(\"parameter_int_yearMonth\",T.StringType(),True)"
 				],
-				"execution_count": 17
+				"execution_count": 28
 			},
 			{
 				"cell_type": "code",
@@ -161,12 +161,12 @@
 					}
 				},
 				"source": [
-					"#df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')\r\n",
+					"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')\r\n",
 					"\r\n",
-					"path = basic_functions._getpath(sourceType, sourceName, datasetName, 'raw')\r\n",
-					"df_raw = spark.read.format(\"parquet\").schema(schema).load(path)"
+					"# path = basic_functions._getpath(sourceType, sourceName, datasetName, 'raw')\r\n",
+					"# df_raw = spark.read.format(\"parquet\").schema(schema).load(path)"
 				],
-				"execution_count": 20
+				"execution_count": 29
 			},
 			{
 				"cell_type": "code",
@@ -185,7 +185,7 @@
 				"source": [
 					"display(df_raw)"
 				],
-				"execution_count": 21
+				"execution_count": 30
 			},
 			{
 				"cell_type": "code",
@@ -203,7 +203,7 @@
 				"source": [
 					"datelist = [(yearMonths - du.relativedelta.relativedelta(months=x)).strftime(\"%Y_%m\") for x in range(24)]"
 				],
-				"execution_count": 15
+				"execution_count": 31
 			},
 			{
 				"cell_type": "code",
@@ -258,7 +258,7 @@
 					"        F.col(\"parameter_int_yearMonth\").cast(\"integer\")\r\n",
 					"    )"
 				],
-				"execution_count": 16
+				"execution_count": 32
 			},
 			{
 				"cell_type": "code",
@@ -282,7 +282,7 @@
 					"    .drop(\"column\", \"value\")\\\r\n",
 					"    .filter(F.col(\"unitsNumber\") > 0)"
 				],
-				"execution_count": null
+				"execution_count": 33
 			},
 			{
 				"cell_type": "code",
@@ -300,7 +300,7 @@
 				"source": [
 					"basic_functions.write(df, sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"parameter_int_yearMonth\", \"period\"])"
 				],
-				"execution_count": null
+				"execution_count": 34
 			}
 		]
 	}
