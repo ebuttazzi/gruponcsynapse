@@ -2496,13 +2496,13 @@
 					"driverCores": 4,
 					"executorMemory": "28g",
 					"executorCores": 4,
-					"numExecutors": 10,
-					"runAsWorkspaceSystemIdentity": false,
+					"numExecutors": 12,
+					"runAsWorkspaceSystemIdentity": true,
 					"conf": {
 						"spark.dynamicAllocation.enabled": "false",
-						"spark.dynamicAllocation.minExecutors": "10",
-						"spark.dynamicAllocation.maxExecutors": "10",
-						"spark.autotune.trackingId": "662ee24e-8557-4635-bb6f-0068156abe3a"
+						"spark.dynamicAllocation.minExecutors": "12",
+						"spark.dynamicAllocation.maxExecutors": "12",
+						"spark.autotune.trackingId": "24bdb8e9-d566-4d35-9eae-39077ba70d70"
 					}
 				},
 				"metadata": {
@@ -2522,14 +2522,13 @@
 						"endpoint": "https://prod-gruponc-ingestion-platform-workspace.dev.azuresynapse.net/livyApi/versions/2019-11-01-preview/sparkPools/MOLargePool",
 						"auth": {
 							"type": "AAD",
-							"authResource": "https://dev.azuresynapse.net",
-							"authHeader": null
+							"authResource": "https://dev.azuresynapse.net"
 						},
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 16,
 						"memory": 112,
-						"extraHeader": null
+						"automaticScaleJobs": false
 					},
 					"sessionKeepAliveTimeout": 30
 				},
@@ -2572,7 +2571,8 @@
 						"source": [
 							"yearMonth = 202209"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2591,7 +2591,8 @@
 							"yearMonth = str(yearMonth)\r\n",
 							"yearMonths = du.parser.parse(f\"{yearMonth[0:4]}-{yearMonth[4:6]}\")"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2611,7 +2612,8 @@
 							"sourceName = 'imshealth'\r\n",
 							"datasetName = 'ndddFato'"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2623,7 +2625,8 @@
 						"source": [
 							"df_raw = basic_functions.read(sourceType, sourceName, datasetName, 'raw')"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2641,7 +2644,8 @@
 						"source": [
 							"datelist = [(yearMonths - du.relativedelta.relativedelta(months=x)).strftime(\"%Y_%m\") for x in range(24)]"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2696,7 +2700,8 @@
 							"        F.col(\"parameter_int_yearMonth\").cast(\"integer\")\r\n",
 							"    )"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2720,7 +2725,8 @@
 							"    .drop(\"column\", \"value\")\\\r\n",
 							"    .filter(F.col(\"unitsNumber\") > 0)"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					},
 					{
 						"cell_type": "code",
@@ -2738,7 +2744,8 @@
 						"source": [
 							"basic_functions.write(df, sourceType, sourceName, datasetName, 'trusted', 'overwrite', [\"parameter_int_yearMonth\", \"period\"])"
 						],
-						"outputs": []
+						"outputs": [],
+						"execution_count": null
 					}
 				]
 			},
