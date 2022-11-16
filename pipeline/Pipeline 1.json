@@ -1,0 +1,57 @@
+{
+	"name": "Pipeline 1",
+	"properties": {
+		"activities": [
+			{
+				"name": "ftp_imshealth_ndddFato_raw_trusted",
+				"type": "SynapseNotebook",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"notebook": {
+						"referenceName": "ftp_imshealth_ndddFato_raw_trusted",
+						"type": "NotebookReference"
+					},
+					"parameters": {
+						"yearMonth": {
+							"value": {
+								"value": "@pipeline().parameters.yearMonth",
+								"type": "Expression"
+							},
+							"type": "int"
+						}
+					},
+					"snapshot": true,
+					"sparkPool": {
+						"referenceName": "MOLargePool",
+						"type": "BigDataPoolReference"
+					},
+					"executorSize": "Small",
+					"conf": {
+						"spark.dynamicAllocation.enabled": false,
+						"spark.dynamicAllocation.minExecutors": 12,
+						"spark.dynamicAllocation.maxExecutors": 12
+					},
+					"driverSize": "Small",
+					"numExecutors": 12
+				}
+			}
+		],
+		"parameters": {
+			"yearMonth": {
+				"type": "string"
+			}
+		},
+		"folder": {
+			"name": "ftp/imshealth/nddFato"
+		},
+		"annotations": []
+	}
+}
