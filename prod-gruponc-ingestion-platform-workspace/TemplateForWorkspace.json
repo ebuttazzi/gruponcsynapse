@@ -41,6 +41,73 @@
 	},
 	"resources": [
 		{
+			"name": "[concat(parameters('workspaceName'), '/Pipeline 1')]",
+			"type": "Microsoft.Synapse/workspaces/pipelines",
+			"apiVersion": "2019-06-01-preview",
+			"properties": {
+				"activities": [
+					{
+						"name": "ftp_imshealth_ndddFato_raw_trusted",
+						"type": "SynapseNotebook",
+						"dependsOn": [],
+						"policy": {
+							"timeout": "0.12:00:00",
+							"retry": 0,
+							"retryIntervalInSeconds": 30,
+							"secureOutput": false,
+							"secureInput": false
+						},
+						"userProperties": [],
+						"typeProperties": {
+							"notebook": {
+								"referenceName": "ftp_imshealth_ndddFato_raw_trusted",
+								"type": "NotebookReference"
+							},
+							"parameters": {
+								"yearMonth": {
+									"value": {
+										"value": "@pipeline().parameters.yearMonth",
+										"type": "Expression"
+									},
+									"type": "int"
+								}
+							},
+							"snapshot": true,
+							"sparkPool": {
+								"referenceName": "MOLargePool",
+								"type": "BigDataPoolReference"
+							},
+							"executorSize": "Small",
+							"conf": {
+								"spark.dynamicAllocation.enabled": false,
+								"spark.dynamicAllocation.minExecutors": 12,
+								"spark.dynamicAllocation.maxExecutors": 12
+							},
+							"driverSize": "Small",
+							"numExecutors": 12
+						}
+					}
+				],
+				"policy": {
+					"elapsedTimeMetric": {},
+					"cancelAfter": {}
+				},
+				"parameters": {
+					"yearMonth": {
+						"type": "string"
+					}
+				},
+				"folder": {
+					"name": "ftp/imshealth/nddFato"
+				},
+				"annotations": []
+			},
+			"dependsOn": [
+				"[concat(variables('workspaceId'), '/notebooks/ftp_imshealth_ndddFato_raw_trusted')]",
+				"[concat(variables('workspaceId'), '/bigDataPools/MOLargePool')]"
+			]
+		},
+		{
 			"name": "[concat(parameters('workspaceName'), '/ftp_imshealth_nddFato')]",
 			"type": "Microsoft.Synapse/workspaces/pipelines",
 			"apiVersion": "2019-06-01-preview",
@@ -2502,7 +2569,7 @@
 						"spark.dynamicAllocation.enabled": "false",
 						"spark.dynamicAllocation.minExecutors": "12",
 						"spark.dynamicAllocation.maxExecutors": "12",
-						"spark.autotune.trackingId": "24bdb8e9-d566-4d35-9eae-39077ba70d70"
+						"spark.autotune.trackingId": "2c7a0c1c-c0e9-44a1-96ec-60fefdeafa38"
 					}
 				},
 				"metadata": {
@@ -2527,8 +2594,7 @@
 						"sparkVersion": "3.2",
 						"nodeCount": 10,
 						"cores": 16,
-						"memory": 112,
-						"automaticScaleJobs": false
+						"memory": 112
 					},
 					"sessionKeepAliveTimeout": 30
 				},
